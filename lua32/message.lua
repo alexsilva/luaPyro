@@ -208,8 +208,8 @@ function message.get_header_bytes(self)
         'Y',
         'R',
         'O',
-        bit.brshift(47, 8),
-        bit.band(47, 255),
+        bit.brshift(self.version, 8),
+        bit.band(self.version, 255),
 
         bit.brshift(self.msg_type, 8),
         bit.band(self.msg_type, 255),
