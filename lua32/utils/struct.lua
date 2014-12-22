@@ -40,6 +40,12 @@ function struct.serializeShortInt32(self, v)
     return strchar(a, b)
 end
 
+function struct.ser_shortInt32(self, v)
+    local a = bit.band(bit.brshift(v, 8), 255)
+    local b = bit.band(v, 255)
+    return strchar(a, b)
+end
+
 -- Short Integer 32 (de-)serialization (big-endian - struct code H)
 function struct.toShortInt32(self, a, b)
     local v = bit.bor(

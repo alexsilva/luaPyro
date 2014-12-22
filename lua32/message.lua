@@ -77,33 +77,16 @@ function message.recv(self, connection)
 end
 
 function message.to_bytes(self)
---    byte[] header_bytes = get_header_bytes();
---    byte[] annotations_bytes = get_annotations_bytes();
---    byte[] result = new byte[header_bytes.length + annotations_bytes.length + data.length];
---    System.arraycopy(header_bytes, 0, result, 0, header_bytes.length);
---    System.arraycopy(annotations_bytes, 0, result, header_bytes.length, annotations_bytes.length);
---    System.arraycopy(data, 0, result, header_bytes.length+annotations_bytes.length, data.length);
---    return result;
-
     local header_bytes = self:get_header_bytes();
     local annotations_bytes = {}
 
-    local size = strlen(self.data) +  1
-    local i = 1
-    while i < size do
-        header_bytes[getn(header_bytes) + 1] = strsub(self.data, i, i)
-        i = i + 1
-    end
+    local data = {text = ""}
 
-    local text = ''
-    local size = getn(header_bytes) + 1
-    local x = 1
-    while  x < size do
-        text = text .. header_bytes[x]
-        x = x + 1
-    end
+    foreach(header_bytes, function(i, v)
+        %data.text = %data.text .. v
+    end)
 
-    return text
+    return data.text .. self.data
 end
 
 
@@ -120,7 +103,6 @@ end
 --    2   checksum
 --followed by annotations: 4 bytes type, annotations bytes.
 function message.get_header_bytes(self)
-
     self.seq = self.seq + 1
 
     local checksum = struct:checksum({
@@ -128,27 +110,24 @@ function message.get_header_bytes(self)
         self.version,
         self.data_size,
         self.annotations_size,
-        self.serializer_id,
         self.flags,
+        self.serializer_id,
         self.seq,
         self.CHECKSUM_MAGIC
     })
 
     local headers = {
-        'P',
-        'Y',
-        'R',
-        'O',
+        'PYRO',
         struct:serializeShortInt32(self.version),
         struct:serializeShortInt32(self.msg_type),
         struct:serializeShortInt32(self.flags),
         struct:serializeShortInt32(self.seq),
         struct:serializeInt32(self.data_size),
         struct:serializeShortInt32(self.serializer_id),
-        struct:serializeShortInt32(self.annotations_size),
-        0,
-        0,
-        checksum
+        struct:ser_shortInt32(self.annotations_size),
+        0, -- reserved
+        0, -- reserved
+        struct:ser_shortInt32(128)
     }
     return headers;
 end
