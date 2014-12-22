@@ -125,8 +125,8 @@ function message.get_header_bytes(self)
         struct:serializeInt32(self.data_size),
         struct:serializeShortInt32(self.serializer_id),
         struct:ser_shortInt32(self.annotations_size),
-        0, -- reserved
-        0, -- reserved
+        strchar(0), -- reserved
+        strchar(0), -- reserved
         struct:ser_shortInt32(checksum)
     }
     return headers;
