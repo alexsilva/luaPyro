@@ -6,9 +6,11 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-local package = '/luabit-legacy/luabit-0.1'
+local bitpackage = '/luabit-legacy/luabit-0.1'
+local proxypackage = '/Pyrolite/lua32'
 
-dofile(__path__ .. package .. '/bit.lua')
+dofile(__path__ .. bitpackage .. '/bit.lua')
+dofile(__path__ .. proxypackage .. '/utils/struct.lua')
 
 message = {
     HEADER_SIZE = 24,
@@ -30,74 +32,35 @@ message = {
 }
 
 function message.from_header(self, header)
-    -- protocol is fisrt 4 caracters
-    self.protocol = strsub(header, 1, 4)
+    self.tag = strsub(header, 1, 4) -- server tag
 
-    -- int version = ((header[4]&0xff)<<8) | (header[5]&0xff);
-    self.version = bit.bor(
-        bit.blshift(bit.band(strbyte(header, 5), 255), 8),
-        bit.band(strbyte(header, 6), 255)
-    );
+    self.version = struct:toShortInt32(strbyte(header, 5), strbyte(header, 6))
 
-    -- int msg_type = ((header[6]&0xff)<<8) | (header[7]&0xff);
-    self.msg_type = bit.bor(
-        bit.blshift(bit.band(strbyte(header, 7), 255), 8),
-        bit.band(strbyte(header, 8),  255)
-    )
+    self.msg_type = struct:toShortInt32(strbyte(header, 7), strbyte(header, 8))
 
-    -- int flags = ((header[8]&0xff)<<8)|(header[9]&0xff);
-    self.flags = bit.bor(
-        bit.blshift(bit.band(strbyte(header, 9), 255), 8),
-        bit.band(strbyte(header, 10),  255)
-    )
+    self.flags = struct:toShortInt32(strbyte(header, 9), strbyte(header, 10))
 
-    -- int seq = ((header[10]&0xff)<<8)|(header[11]&0xff);
-    self.seq = bit.bor(
-        bit.blshift(bit.band(strbyte(header, 11), 255), 8),
-        bit.band(strbyte(header, 12),  255)
-    )
+    self.seq = struct:toShortInt32(strbyte(header, 11), strbyte(header, 12))
 
-    -- int data_size=header[12] & 0xff;
-    -- data_size <<= 8;
-    -- data_size |= header[13]&0xff;
-    -- data_size <<= 8;
-    -- data_size |= header[14]&0xff;
-    -- data_size <<= 8;
-    -- data_size |= header[15]&0xff;
-    data_size = bit.band(strbyte(header, 13), 255)
-    data_size = bit.blshift(data_size, 8)
-    data_size = bit.bor(data_size, bit.band(strbyte(header, 14), 255))
-    data_size = bit.blshift(data_size, 8)
-    data_size = bit.bor(data_size, bit.band(strbyte(header, 15), 255))
-    data_size = bit.blshift(data_size, 8)
-    data_size = bit.bor(data_size, bit.band(strbyte(header, 16), 255))
+    self.data_size = struct:toInt32(strbyte(header, 13), strbyte(header, 14),
+                                    strbyte(header, 15), strbyte(header, 16))
 
-    self.data_size = data_size
+    self.serializer_id = struct:toShortInt32(strbyte(header, 17), strbyte(header, 18))
 
-    -- int serializer_id = ((header[16]&0xff) << 8)|(header[17]&0xff);
-    self.serializer_id = bit.bor(
-        bit.blshift(bit.band(strbyte(header, 17), 255), 8),
-        bit.band(strbyte(header, 18),  255)
-    )
+    self.annotations_size = struct:toShortInt32(strbyte(header, 19), strbyte(header, 20))
 
-    -- int annotations_size = ((header[18]&0xff) <<8)|(header[19]&0xff);
-    self.annotations_size = bit.bor(
-        bit.blshift(bit.band(strbyte(header, 19), 255), 8),
-        bit.band(strbyte(header, 20),  255)
-    )
+    self.checksum = struct:toShortInt32(strbyte(header, 23), strbyte(header, 24))
 
-    -- byte 20 and 21 are reserved.
-
-    -- int checksum = ((header[22]&0xff) << 8)|(header[23]&0xff);
-    self.checksum = bit.bor(
-        bit.blshift(bit.band(strbyte(header, 23), 255), 8),
-        bit.band(strbyte(header, 24),  255)
-    )
-
-    -- int actual_checksum = (msg_type+version+data_size+annotations_size+flags+serializer_id+seq+CHECKSUM_MAGIC)&0xffff;
-    local datasum = self.msg_type + self.version + self.data_size + self.annotations_size +
-                    self.flags + self.serializer_id +  self.seq + self.CHECKSUM_MAGIC
-    local actual_checksum = bit.band(datasum, 65535)
+    self.checksum_calc = struct:checksum({
+        self.msg_type,
+        self.version,
+        self.data_size,
+        self.annotations_size,
+        self.serializer_id,
+        self.flags,
+        self.seq,
+        self.CHECKSUM_MAGIC
+    })
     return self
 end
 
@@ -159,85 +122,36 @@ end
 --    2   (reserved)
 --    2   checksum
 --followed by annotations: 4 bytes type, annotations bytes.
-
 function message.get_header_bytes(self)
---    int checksum = (type+Config.PROTOCOL_VERSION+data_size+annotations_size+serializer_id+flags+seq+CHECKSUM_MAGIC)&0xffff;
 
---    byte[] header = new byte[HEADER_SIZE];
+    self.seq = self.seq + 1
 
---    header[0]=(byte)'P';
---    header[1]=(byte)'Y';
---    header[2]=(byte)'R';
---    header[3]=(byte)'O';
---
---    header[4]=(byte) (Config.PROTOCOL_VERSION>>8);
---    header[5]=(byte) (Config.PROTOCOL_VERSION & 0xff);
---
---    header[6]=(byte) (type>>8);
---    header[7]=(byte) (type&0xff);
---
---    header[8]=(byte) (flags>>8);
---    header[9]=(byte) (flags&0xff);
---
---    header[10]=(byte)(seq>>8);
---    header[11]=(byte)(seq & 0xff);
---
---    header[12]=(byte)((data_size>>24) & 0xff);
---    header[13]=(byte)((data_size>>16) & 0xff);
---    header[14]=(byte)((data_size>>8)  & 0xff);
---    header[15]=(byte)(data_size & 0xff);
---
---    header[16]=(byte)(serializer_id>>8);
---    header[17]=(byte)(serializer_id&0xff);
---
---    header[18]=(byte)((annotations_size>>8)&0xff);
---    header[19]=(byte)(annotations_size&0xff);
---
---    header[20]=0; // reserved
---    header[21]=0; // reserved
---
---    header[22]=(byte)((checksum>>8)&0xff);
---    header[23]=(byte)(checksum&0xff);
+    local checksum = struct:checksum({
+        self.msg_type,
+        self.version,
+        self.data_size,
+        self.annotations_size,
+        self.serializer_id,
+        self.flags,
+        self.seq,
+        self.CHECKSUM_MAGIC
+    })
 
-    self.seq = self.seq + 1 + 1
-
-    local datasum = self.msg_type + self.version + self.data_size + self.annotations_size +
-                    self.serializer_id + self.flags + self.seq + self.CHECKSUM_MAGIC
-    local checksum = bit.band(datasum, 65535);
-
-    local header = {
+    local headers = {
         'P',
         'Y',
         'R',
         'O',
-        bit.brshift(self.version, 8),
-        bit.band(self.version, 255),
-
-        bit.brshift(self.msg_type, 8),
-        bit.band(self.msg_type, 255),
-
-        bit.brshift(self.flags, 8),
-        bit.band(self.flags, 255),
-
-        bit.brshift(self.seq, 8),
-        bit.brshift(self.seq, 255),
-
-        bit.band(bit.brshift(self.data_size, 24), 255),
-        bit.band(bit.brshift(self.data_size, 16), 255),
-        bit.band(bit.brshift(self.data_size, 8), 255),
-        bit.band(self.data_size, 255),
-
-        bit.brshift(self.serializer_id, 8),
-        bit.band(self.serializer_id, 255),
-
-        bit.band(bit.brshift(self.annotations_size, 8), 255),
-        bit.band(self.annotations_size, 255),
-
+        struct:serializeShortInt32(self.version),
+        struct:serializeShortInt32(self.msg_type),
+        struct:serializeShortInt32(self.flags),
+        struct:serializeShortInt32(self.seq),
+        struct:serializeInt32(self.data_size),
+        struct:serializeShortInt32(self.serializer_id),
+        struct:serializeShortInt32(self.annotations_size),
         0,
         0,
-
-        bit.band(bit.brshift(checksum, 8), 255),
-        bit.band(checksum, 255)
+        checksum
     }
-    return header;
+    return headers;
 end
