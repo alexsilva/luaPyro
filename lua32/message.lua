@@ -6,9 +6,9 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-__package__ = '/luabit-legacy/luabit-0.1'
+local package = '/luabit-legacy/luabit-0.1'
 
-dofile(__path__ .. __package__ .. '/bit.lua')
+dofile(__path__ .. package .. '/bit.lua')
 
 message = {
     HEADER_SIZE = 24,

@@ -6,10 +6,10 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-__package__ = '/Pyrolite/lua32'
+local package = '/Pyrolite/lua32'
 
-dofile(__path__ .. __package__ .. '/message.lua')
-dofile(__path__ .. __package__ ..'/serializer.lua')
+dofile(__path__ .. package .. '/message.lua')
+dofile(__path__ .. package ..'/serializer.lua')
 
 
 proxy = {}
