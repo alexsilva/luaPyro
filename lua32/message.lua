@@ -68,10 +68,7 @@ end
 --- Args: connection, requiredMsgTypes, hmac_key
 -----
 function message.recv(self, connection)
-
     local data = connection:receive(self.HEADER_SIZE)
-
-    write("RECEIVED: " .. data .. " Len: " .. tostring(strlen(data)) .. "<br/>")
 
     local msg = self:from_header(data)
     msg.data = connection:receive(msg.data_size)
