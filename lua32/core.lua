@@ -6,10 +6,10 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-local path = 'C:/inetpub/wwwroot/publique-repo/web/cgi/cgilua.conf/Pyrolite/lua32'
+__package__ = '/Pyrolite/lua32'
 
-dofile(path .. '/message.lua')
-dofile(path .. '/serializer.lua')
+dofile(__path__ .. __package__ .. '/message.lua')
+dofile(__path__ .. __package__ ..'/serializer.lua')
 
 
 proxy = {}

@@ -6,7 +6,9 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-dofile('C:/inetpub/wwwroot/publique-repo/web/cgi/cgilua.conf/luabit-legacy/luabit-0.1/bit.lua')
+__package__ = '/luabit-legacy/luabit-0.1'
+
+dofile(__path__ .. __package__ .. '/bit.lua')
 
 message = {
     HEADER_SIZE = 24,
