@@ -31,25 +31,25 @@ message = {
     SERIALIZER_PICKLE = 4
 }
 
-function message.from_header(self, header)
-    self.tag = strsub(header, 1, 4) -- server tag
+function message.from_header(self, headers_data)
+    self.tag = strsub(headers_data, 1, 4) -- server tag
 
-    self.version = struct:toShortInt32(strbyte(header, 5), strbyte(header, 6))
+    self.version = struct:toShortInt32(strbyte(headers_data, 5), strbyte(headers_data, 6))
 
-    self.msg_type = struct:toShortInt32(strbyte(header, 7), strbyte(header, 8))
+    self.msg_type = struct:toShortInt32(strbyte(headers_data, 7), strbyte(headers_data, 8))
 
-    self.flags = struct:toShortInt32(strbyte(header, 9), strbyte(header, 10))
+    self.flags = struct:toShortInt32(strbyte(headers_data, 9), strbyte(headers_data, 10))
 
-    self.seq = struct:toShortInt32(strbyte(header, 11), strbyte(header, 12))
+    self.seq = struct:toShortInt32(strbyte(headers_data, 11), strbyte(headers_data, 12))
 
-    self.data_size = struct:toInt32(strbyte(header, 13), strbyte(header, 14),
-                                    strbyte(header, 15), strbyte(header, 16))
+    self.data_size = struct:toInt32(strbyte(headers_data, 13), strbyte(headers_data, 14),
+                                    strbyte(headers_data, 15), strbyte(headers_data, 16))
 
-    self.serializer_id = struct:toShortInt32(strbyte(header, 17), strbyte(header, 18))
+    self.serializer_id = struct:toShortInt32(strbyte(headers_data, 17), strbyte(headers_data, 18))
 
-    self.annotations_size = struct:toShortInt32(strbyte(header, 19), strbyte(header, 20))
+    self.annotations_size = struct:toShortInt32(strbyte(headers_data, 19), strbyte(headers_data, 20))
 
-    self.checksum = struct:toShortInt32(strbyte(header, 23), strbyte(header, 24))
+    self.checksum = struct:toShortInt32(strbyte(headers_data, 23), strbyte(headers_data, 24))
 
     self.checksum_calc = struct:checksum({
         self.msg_type,
