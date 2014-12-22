@@ -14,9 +14,9 @@ struct = {}
 
 -- Integer 32 serialization (big-endian - struct code i)
 function struct.serializeInt32(self, v)
-    local a = bit.band(bit.brshift(v, 24), 255)
-    local b = bit.band(bit.brshift(v, 16), 255)
-    local c = bit.band(bit.brshift(v, 8), 255)
+    local a = bit.band(bit.blogic_rshift(v, 24), 255)
+    local b = bit.band(bit.blogic_rshift(v, 16), 255)
+    local c = bit.band(bit.blogic_rshift(v, 8), 255)
     local d = bit.band(v, 255)
     return strchar(a, b, c, d)
 end
@@ -35,13 +35,13 @@ end
 
 -- Short Integer 32 serialization (big-endian - struct code H)
 function struct.serializeShortInt32(self, v)
-    local a = bit.brshift(v, 8)
+    local a = bit.blogic_rshift(v, 8)
     local b = bit.band(v, 255)
     return strchar(a, b)
 end
 
 function struct.ser_shortInt32(self, v)
-    local a = bit.band(bit.brshift(v, 8), 255)
+    local a = bit.band(bit.blogic_rshift(v, 8), 255)
     local b = bit.band(v, 255)
     return strchar(a, b)
 end
