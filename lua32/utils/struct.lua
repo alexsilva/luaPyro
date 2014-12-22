@@ -23,14 +23,14 @@ end
 
 -- Integer 32 (de-)serialization (big-endian - struct code i)
 function struct.toInt32(self, a, b, c, d)
-    local v = bit.band(a, 255)
-    v = bit.blshift(v, 8)
-    v = bit.bor(v, bit.band(b, 255))
-    v = bit.blshift(v, 8)
-    v = bit.bor(v, bit.band(c, 255))
-    v = bit.blshift(v, 8)
-    v = bit.bor(data_size, d, 255)
-    return v
+    local x = bit.band(a, 255)
+    x = bit.blshift(x, 8)
+    x = bit.bor(x, bit.band(b, 255))
+    x = bit.blshift(x, 8)
+    x = bit.bor(x, bit.band(c, 255))
+    x = bit.blshift(x, 8)
+    x = bit.bor(x, d, 255)
+    return x
 end
 
 -- Short Integer 32 serialization (big-endian - struct code H)
