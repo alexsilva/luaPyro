@@ -127,7 +127,7 @@ function message.get_header_bytes(self)
         struct:ser_shortInt32(self.annotations_size),
         0, -- reserved
         0, -- reserved
-        struct:ser_shortInt32(128)
+        struct:ser_shortInt32(checksum)
     }
     return headers;
 end
