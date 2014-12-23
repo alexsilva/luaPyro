@@ -10,6 +10,7 @@ local package = '/Pyrolite/lua32'
 
 dofile(__path__ .. package .. '/message.lua')
 dofile(__path__ .. package ..'/serializer.lua')
+dofile(__path__ .. package .. '/pyrouri.lua')
 
 proxy = {}
 
@@ -19,9 +20,9 @@ settag(proxy, TAG)
 
 -- cria, inicializa a conexão do proxy
 function proxy.create_connection(self, uri)
-    self.uri = uri
+    self.uri = pyrouri(uri)
 
-    local conn, smsg = connect(uri.loc, uri.port)
+    local conn, smsg = connect(self.uri.loc, self.uri.port)
     self.connection = conn
 
     return message:recv(conn)
