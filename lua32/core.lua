@@ -18,11 +18,15 @@ local TAG = newtag()
 
 settag(proxy, TAG)
 
--- cria, inicializa a conexão do proxy
-function proxy.create_connection(self, uri)
+settagmethod(TAG, 'function', function(self, uri)
     self.uri = pyrouri(uri)
+    return self
+end)
 
+-- cria, inicializa a conexão do proxy
+function proxy.start_connection(self)
     local conn, smsg = connect(self.uri.loc, self.uri.port)
+
     self.connection = conn
 
     return message:recv(conn)
