@@ -30,6 +30,10 @@ serializer = {
     type = 'json'
 }
 
+function serializer.getid(self)
+    return %TYPES[self.type].id
+end
+
 -- serializa o objeto para envio na rede
 function serializer.dumps(self, ...)
     return %TYPES[self.type].encoder(arg)
