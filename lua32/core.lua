@@ -23,6 +23,10 @@ settagmethod(TAG, 'function', function(self, uri)
     return self
 end)
 
+function proxy.set_serializer(self, name)
+    serializer:set_type(name)
+end
+
 -- cria, inicializa a conexão do proxy
 function proxy.start_connection(self)
     local conn, smsg = connect(self.uri.loc, self.uri.port)
@@ -43,9 +47,9 @@ end)
 
 -- chama o método remoto
 function proxy.call(self, methodname, args)
-    local data = serialize:dumps({self.uri.objectid, methodname, args})
+    local data = serializer:dumps({self.uri.objectid, methodname, args})
 
-    message.serializer_id = serialize.serializer_id
+    message.serializer_id = serializer:getid()
     message.msg_type = message.MSG_INVOKE
     message.data_size = strlen(data)
     message.data = data
@@ -54,5 +58,5 @@ function proxy.call(self, methodname, args)
 
     local resultmsg = message:recv(self.connection)
 
-    return serialize:loads(resultmsg.data)
+    return serializer:loads(resultmsg.data)
 end
