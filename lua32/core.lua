@@ -11,31 +11,43 @@ local package = '/Pyrolite/lua32'
 dofile(__path__ .. package .. '/message.lua')
 dofile(__path__ .. package ..'/serializer.lua')
 
-
 proxy = {}
 
-function proxy.create_connection(self, host, port)
-    local connection, smsg = connect(host, port)
+local TAG = newtag()
 
-    self.connection = connection
+settag(proxy, TAG)
 
-    return message:recv(connection)
+-- cria, inicializa a conexão do proxy
+function proxy.create_connection(self, uri)
+    self.uri = uri
+
+    local conn, smsg = connect(uri.loc, uri.port)
+    self.connection = conn
+
+    return message:recv(conn)
 end
 
-function proxy.call(self, methodname, args, kwargs)
-    local data = serialize:dumps(nill)
+-- resolução dinâmica de méthodos da api remota no proxy
+settagmethod(TAG, 'index', function(self, name)
+    local callback = {}
+    settagmethod(tag(callback), 'function', function(object, ...)
+        return %self:call(%name, arg)
+    end)
+    return callback
+end)
+
+-- chama o método remoto
+function proxy.call(self, methodname, args)
+    local data = serialize:dumps({self.uri.objectid, methodname, args})
 
     message.serializer_id = serialize.serializer_id
     message.msg_type = message.MSG_INVOKE
     message.data_size = strlen(data)
     message.data = data
 
+    self.connection:send(message:to_bytes())
 
-    local outd = message:to_bytes()
+    local resultmsg = message:recv(self.connection)
 
-    write("SENT: " .. outd .. " Len: " .. message.data_size .. "<br/>")
-
-    self.connection:send(outd)
-
-    return message:recv(self.connection)
+    return serialize:loads(resultmsg.data)
 end
