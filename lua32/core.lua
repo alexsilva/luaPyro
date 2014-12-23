@@ -40,6 +40,7 @@ end
 settagmethod(TAG, 'index', function(self, name)
     local callback = {}
     settagmethod(tag(callback), 'function', function(object, ...)
+        arg.n = nil
         return %self:call(%name, arg)
     end)
     return callback
@@ -47,7 +48,12 @@ end)
 
 -- chama o método remoto
 function proxy.call(self, methodname, args)
-    local data = serializer:dumps({self.uri.objectid, methodname, args})
+    local data = serializer:dumps({
+        object= self.uri.objectid,
+        method = methodname,
+        params = args,
+        kwargs = { x =1 }
+    })
 
     message.serializer_id = serializer:getid()
     message.msg_type = message.MSG_INVOKE

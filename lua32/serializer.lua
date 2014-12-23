@@ -36,7 +36,7 @@ end
 
 -- serializa o objeto para envio na rede
 function serializer.dumps(self, ...)
-    return %TYPES[self.type].encoder(arg)
+    return %TYPES[self.type].encoder(arg[1])
 end
 
 -- retorna os dados deseralizados
