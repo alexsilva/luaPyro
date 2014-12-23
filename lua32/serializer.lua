@@ -6,17 +6,42 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-local SERIALIZER_SERPENT = 1
-local SERIALIZER_JSON = 2
-local SERIALIZER_MARSHAL = 3
-local SERIALIZER_PICKLE = 4
+dofile(__path__ .. '/Pyrolite/lua32' .. '/serializers/json.lua')
 
-serialize = {
-    serializer_id = SERIALIZER_SERPENT
+local TYPES = {
+    ["serpent"] = {
+        id = 1,
+    },
+    ["json"] = {
+        id = 2,
+        decoder = json_decode,
+        encoder = table2JSON
+    },
+    ["marshal"] = {
+        id = 3
+    },
+    ["pickle"] = {
+        id = 4
+    }
 }
 
-function serialize.dumps(self, obj)
-    local data = "# serpent utf-8 python2.6\n('obj_c08fe2e66e404a33ad4d90cd7c19791f','sum',(2,2),{})"
+serializer = {
+    id = SERIALIZER_SERPENT,
+    type = 'json'
+}
 
-    return data
+-- serializa o objeto para envio na rede
+function serializer.dumps(self, ...)
+    return %TYPES[self.type].encoder(arg)
+end
+
+-- retorna os dados deseralizados
+function serializer.loads(self, data)
+    return %TYPES[self.type].decoder(data)
+end
+
+-- objeto real de decodificação/codificação
+function serializer.set_type(self, name)
+    self.type = name
+    return self
 end
