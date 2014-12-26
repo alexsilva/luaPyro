@@ -36,12 +36,10 @@ end
 
 -- resolução dinâmica de méthodos da api remota no proxy
 settagmethod(tag(proxy), 'index', function(self, name)
-    local callback = {}
-    settagmethod(tag(callback), 'function', function(object, ...)
+    return function(...)
         arg.n = nil
         return %self:call(%name, arg)
-    end)
-    return callback
+    end
 end)
 
 -- chama o método remoto
