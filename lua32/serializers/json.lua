@@ -32,7 +32,9 @@ function concat(t, sep)
 end
 
 function isArray(o)
-	if not o then return FALSE end
+	if not o or (type(o) == 'table' and getn(o) == 0) then
+      return FALSE
+    end
 	local key, _ = next(o, nil)
 	while key do
 		if not tonumber(key) then
