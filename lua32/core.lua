@@ -13,12 +13,9 @@ dofile(__path__ .. package ..'/serializer.lua')
 dofile(__path__ .. package .. '/pyrouri.lua')
 
 proxy = {}
+settag(proxy, newtag())
 
-local TAG = newtag()
-
-settag(proxy, TAG)
-
-settagmethod(TAG, 'function', function(self, uri)
+settagmethod(tag(proxy), 'function', function(self, uri)
     self.uri = pyrouri(uri)
     self:start_connection()
     return self
@@ -38,7 +35,7 @@ function proxy.start_connection(self)
 end
 
 -- resolução dinâmica de méthodos da api remota no proxy
-settagmethod(TAG, 'index', function(self, name)
+settagmethod(tag(proxy), 'index', function(self, name)
     local callback = {}
     settagmethod(tag(callback), 'function', function(object, ...)
         arg.n = nil
