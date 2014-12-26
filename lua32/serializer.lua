@@ -6,7 +6,10 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-dofile(__path__ .. '/Pyrolite/lua32' .. '/serializers/json.lua')
+local package = '/Pyrolite/lua32'
+
+dofile(__path__ .. package .. '/serializers/json.lua')
+dofile(__path__ .. package .. '/configuration.lua')
 
 local TYPES = {
     ["serpent"] = {
@@ -26,8 +29,8 @@ local TYPES = {
 }
 
 serializer = {
-    id = SERIALIZER_SERPENT,
-    type = 'json'
+    --  default json
+    type = config.SERIALIZER
 }
 
 function serializer.getid(self)
