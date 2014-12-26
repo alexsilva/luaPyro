@@ -37,16 +37,7 @@ end
 -- resolução dinâmica de méthodos da api remota no proxy
 settagmethod(tag(proxy), 'index', function(self, name)
     return function(...)
-        local params = {args = {}, kwargs = nil}
-        arg.n = nil
-        foreach(arg, function(i, v)
-            if type(v) ~= 'table' then
-                %params.args[getn(%params.args) + 1] = v
-            else
-                %params.kwargs = v
-            end
-        end)
-        return %self:call(%name, params.args, params.kwargs)
+        return %self:call(%name, (arg[1] or {}), (arg[2] or {}))
     end
 end)
 
@@ -54,10 +45,10 @@ end)
 function proxy.call(self, method, args, kwargs)
     local params = {
         object = self.uri.objectid,
-        method = method
+        method = method,
+        params = args,
+        kwargs = kwargs
     }
-    if args then params.params = args end
-    if kwargs then params.kwargs = kwargs end
 
     local data = serializer:dumps(params)
 

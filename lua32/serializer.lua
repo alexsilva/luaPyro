@@ -17,8 +17,14 @@ local TYPES = {
     },
     ["json"] = {
         id = 2,
-        decoder = json_decode,
-        encoder = table2JSON
+        decoder = function(data)
+            data = json_decode(data)
+            return data
+        end,
+        encoder = function(data)
+            data = table2JSON(data)
+            return data
+        end,
     },
     ["marshal"] = {
         id = 3
