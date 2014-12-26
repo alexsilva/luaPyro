@@ -14,7 +14,7 @@ dofile(__path__ .. '/Pyrolite/lua32/pyrouri.lua')
 nameserver = {}
 
 function nameserver.locateNS(self, host, port, broadcast, hmac_key)
-    if host == nill then
+    if host == nil then
         local host = config.NS_HOST
         if not port then
             port = config.NS_PORT
