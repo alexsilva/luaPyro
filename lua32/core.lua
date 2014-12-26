@@ -20,6 +20,7 @@ settag(proxy, TAG)
 
 settagmethod(TAG, 'function', function(self, uri)
     self.uri = pyrouri(uri)
+    self:start_connection()
     return self
 end)
 
@@ -47,13 +48,15 @@ settagmethod(TAG, 'index', function(self, name)
 end)
 
 -- chama o método remoto
-function proxy.call(self, methodname, args)
-    local data = serializer:dumps({
-        object= self.uri.objectid,
-        method = methodname,
-        params = args,
-        kwargs = { x =1 }
-    })
+function proxy.call(self, method, args, kwargs)
+    local params = {
+        object = self.uri.objectid,
+        method = method
+    }
+    if args then params.params = args end
+    if kwargs then params.kwargs = kwargs end
+
+    local data = serializer:dumps(params)
 
     message.serializer_id = serializer:getid()
     message.msg_type = message.MSG_INVOKE
