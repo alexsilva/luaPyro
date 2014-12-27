@@ -11,29 +11,39 @@ dofile(__path__ .. '/Pyrolite/lua32/configuration.lua')
 dofile(__path__ .. '/Pyrolite/lua32/constants.lua')
 dofile(__path__ .. '/Pyrolite/lua32/pyrouri.lua')
 
-nameserver = {}
+-- object (class)
+NameServer = settag({URIFormatString = "PYRO:%s@%s:%d"}, newtag())
 
-function nameserver.locateNS(self, host, port, broadcast, hmac_key)
+-- Method of resolution of the Message object instances
+settagmethod(tag(NameServer), 'index', function(tbl, name)
+    return rawgettable(NameServer, name)
+end)
+
+-- NameServer constructor
+function NameServer:new(name)
+    return settag({name=name}, tag(NameServer))
+end
+
+function NameServer:locateNS(host, port, broadcast, hmac_key)
     if host == nil then
         local host = config.NS_HOST
         if not port then
             port = config.NS_PORT
         end
-        local uristring = format("PYRO:%s@%s:%d", constants.NAMESERVER_NAME, host, port)
+        local uristring = format(self.URIFormatString, constants.NAMESERVER_NAME, host, port)
 
-        self.proxy = proxy(uristring)
+        self.proxy = Proxy:new(uristring)
         self.proxy.ping()
 
         return self
     end
 end
 
-function nameserver.uriLookup(self, name)
+function NameServer:getURI(name)
     if self.proxy == nil then
         local ns = self:locateNS() -- proxy set
     end
-
-    local uristring = self.proxy.lookup(name)
+    local uristring = self.proxy.lookup({name or self.name})
 
     if (type(uristring) == 'table' and uristring['__class__'] == 'Pyro4.core.URI') then
         local protocol = uristring.state[1]

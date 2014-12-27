@@ -34,27 +34,35 @@ local TYPES = {
     }
 }
 
-serializer = {
-    --  default json
-    type = config.SERIALIZER
-}
+Serializer = settag({}, newtag())
 
-function serializer.getid(self)
+-- Method of resolution of the Serializer object instances.
+settagmethod(tag(Serializer), 'index', function(tbl, name)
+    return rawgettable(Serializer, name)
+end)
+
+function Serializer:new(type)
+    local self = settag({}, tag(Serializer))
+    self.type = (type or config.SERIALIZER) --  default json
+    return self
+end
+
+function Serializer:getid()
     return %TYPES[self.type].id
 end
 
 -- serializa o objeto para envio na rede
-function serializer.dumps(self, ...)
+function Serializer:dumps(...)
     return %TYPES[self.type].encoder(arg[1])
 end
 
 -- retorna os dados deseralizados
-function serializer.loads(self, data)
+function Serializer:loads(data)
     return %TYPES[self.type].decoder(data)
 end
 
 -- objeto real de decodificação/codificação
-function serializer.set_type(self, name)
+function Serializer:set_type(name)
     self.type = name
     return self
 end

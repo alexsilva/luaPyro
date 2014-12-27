@@ -9,57 +9,62 @@
 local package = '/Pyrolite/lua32'
 
 dofile(__path__ .. package .. '/message.lua')
-dofile(__path__ .. package ..'/serializer.lua')
+dofile(__path__ .. package .. '/serializer.lua')
 dofile(__path__ .. package .. '/pyrouri.lua')
 
-proxy = {}
-settag(proxy, newtag())
+-- object (class)
+Proxy = settag({}, newtag())
 
-settagmethod(tag(proxy), 'function', function(self, uri)
-    self.uri = pyrouri(uri)
-    self:start_connection()
-    return self
+
+-- Method of resolution of the proxy Proxy instances.
+settagmethod(tag(Proxy), 'index', function(self, name)
+    if rawgettable(Proxy, name) then
+        return rawgettable(Proxy, name)
+    else
+        return function(...)
+            return %self:call(%name, (arg[1] or {}), (arg[2] or {}))
+        end
+    end
 end)
 
-function proxy.set_serializer(self, name)
-    serializer:set_type(name)
+
+-- Proxy constructor
+function Proxy:new(uri)
+    local self = settag({}, tag(Proxy))
+
+    self.uri = PyroURI:new(uri)
+    self.serializer = Serializer:new()
+
+    self:start_connection()
+    return self
 end
 
--- cria, inicializa a conexão do proxy
-function proxy.start_connection(self)
+function Proxy:set_serializer(name)
+    self.serializer:set_type(name)
+end
+
+-- Creates, initializes the proxy connection.
+function Proxy:start_connection()
     local conn, smsg = connect(self.uri.loc, self.uri.port)
 
     self.connection = conn
 
-    return message:recv(conn)
+    return Message:recv(conn)
 end
 
--- resolução dinâmica de méthodos da api remota no proxy
-settagmethod(tag(proxy), 'index', function(self, name)
-    return function(...)
-        return %self:call(%name, (arg[1] or {}), (arg[2] or {}))
-    end
-end)
-
--- chama o método remoto
-function proxy.call(self, method, args, kwargs)
+-- Calls the remote method
+function Proxy:call(method, args, kwargs)
     local params = {
         object = self.uri.objectid,
         method = method,
         params = args,
         kwargs = kwargs
     }
+    local data = self.serializer:dumps(params)
 
-    local data = serializer:dumps(params)
-
-    message.serializer_id = serializer:getid()
-    message.msg_type = message.MSG_INVOKE
-    message.data_size = strlen(data)
-    message.data = data
-
+    local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(), 0, data)
     self.connection:send(message:to_bytes())
 
-    local resultmsg = message:recv(self.connection)
-
-    return serializer:loads(resultmsg.data)
+    message = message:recv(self.connection)
+    return self.serializer:loads(message.data)
 end
