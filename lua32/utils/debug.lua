@@ -10,17 +10,17 @@ dofile(__PATH__ .. '/Pyrolite/lua32/configuration.lua')
 
 -- debug messages - by config
 debug = {
-    println = function(object)
+    println = function(self, object)
         return write(tostring(object) .. '<br/>')
     end,
     -- log in screen
     message = function(self, object, header)
         if config.DEBUG == true then
-            if header then self.println(header) end
+            if header then self:println(header) end
             if type(object) == 'table' then
                 tprint(object) -- print tables
             else
-                self.println(object)
+                self:println(object)
             end
         end
         if config.DEBUG_LOG_IN_FILE == true then
