@@ -12,6 +12,7 @@ dofile(__PATH__ .. package .. '/message.lua')
 dofile(__PATH__ .. package .. '/serializer.lua')
 dofile(__PATH__ .. package .. '/pyrouri.lua')
 dofile(__PATH__ .. package .. '/utils/debug.lua')
+dofile(__PATH__ .. package .. '/configuration.lua')
 
 -- object (class)
 Proxy = settag({}, newtag())
@@ -23,18 +24,20 @@ settagmethod(tag(Proxy), 'index', function(self, name)
         return rawgettable(Proxy, name)
     else
         return function(...)
-            return %self:call(%name, (arg[1] or {}), (arg[2] or {}))
+            return %self:call(%name, %self.uri.objectid, (arg[1] or {}), (arg[2] or {}))
         end
     end
 end)
 
 
 -- Proxy constructor
-function Proxy:new(uri)
+function Proxy:new(uri, with_metadata)
     local self = settag({}, tag(Proxy))
 
     self.uri = PyroURI:new(uri)
     self.serializer = Serializer:new()
+    self.with_metadata = with_metadata
+    self.metadata = {}
 
     self:start_connection()
     return self
@@ -46,12 +49,17 @@ end
 
 -- Creates, initializes the proxy connection.
 function Proxy:start_connection()
-    debug:message(smsg, 'PROXY CONNECTION')
-
     local conn, smsg = connect(self.uri.loc, self.uri.port)
-    self.connection = conn
+    debug:message(smsg, 'PROXY CONNECTION MSG')
 
-    return Message:recv(conn)
+    self.connection = conn
+    local message = Message:recv(conn, {Message.MSG_CONNECTOK})
+
+    if self.with_metadata == true or config.METADATA == true then
+        self.metadata = self:call('get_metadata', config.DAEMON_NAME, {self.uri.objectid}, {})
+        debug:message(self.metadata, 'GET-METADATA: ' .. self.uri.objectid)
+    end
+    return message
 end
 
 -- Close proxy connection
@@ -63,13 +71,13 @@ function Proxy:close()
 end
 
 -- Calls the remote method
-function Proxy:call(method, args, kwargs)
+function Proxy:call(method, objectid, args, kwargs)
     if type(self.connection) ~= 'userdata' then
         -- connection closed ?
         self:start_connection()
     end
     local params = {
-        object = self.uri.objectid,
+        object = objectid,
         method = method,
         params = args,
         kwargs = kwargs
