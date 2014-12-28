@@ -19,6 +19,10 @@ config = {
     SERPENT_SET_LITERALS = 0,   -- set to true if talking to Python 3.2 or newer
     SERIALIZER = "json",
     METADATA = 1,		-- get metadata from server?
-    DAEMON_NAME = "Pyro.Daemon"
+    DAEMON_NAME = "Pyro.Daemon",
+    -- debug settings
+    DEBUG_LOG_PATH = __LOG__ .. '/lua_rpc_debug.log',
+    DEBUG_LOG_IN_FILE = true,
+    DEBUG = false
 }
 

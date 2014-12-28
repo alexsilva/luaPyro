@@ -11,6 +11,7 @@ local package = '/Pyrolite/lua32'
 dofile(__path__ .. package .. '/message.lua')
 dofile(__path__ .. package .. '/serializer.lua')
 dofile(__path__ .. package .. '/pyrouri.lua')
+dofile(__path__ .. package .. '/utils/debug.lua')
 
 -- object (class)
 Proxy = settag({}, newtag())
@@ -48,6 +49,7 @@ function Proxy:start_connection()
     local conn, smsg = connect(self.uri.loc, self.uri.port)
 
     self.connection = conn
+    debug:message(smsg, 'PROXY CONNECTION')
 
     return Message:recv(conn)
 end
@@ -61,10 +63,13 @@ function Proxy:call(method, args, kwargs)
         kwargs = kwargs
     }
     local data = self.serializer:dumps(params)
+    debug:message(data, format('[%s] SENT JSON', method))
 
     local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(), 0, data)
     self.connection:send(message:to_bytes())
 
     message = message:recv(self.connection)
+    debug:message(message.data, format('[%s] RECEIVED JSON', method))
+
     return self.serializer:loads(message.data)
 end

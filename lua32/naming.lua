@@ -6,10 +6,12 @@
 -- To change this template use File | Settings | File Templates.
 --
 
+
 dofile(__path__ .. '/Pyrolite/lua32/core.lua')
 dofile(__path__ .. '/Pyrolite/lua32/configuration.lua')
 dofile(__path__ .. '/Pyrolite/lua32/constants.lua')
 dofile(__path__ .. '/Pyrolite/lua32/pyrouri.lua')
+dofile(__path__ .. '/Pyrolite/lua32/utils/debug.lua')
 
 -- object (class)
 NameServer = settag({URIFormatString = "PYRO:%s@%s:%d"}, newtag())
@@ -33,7 +35,7 @@ function NameServer:locateNS(host, port, broadcast, hmac_key)
         local uristring = format(self.URIFormatString, constants.NAMESERVER_NAME, host, port)
 
         self.proxy = Proxy:new(uristring)
-        self.proxy.ping()
+        debug:message(self.proxy.ping(), '[ping] PROXY CALL RESULT')
 
         return self
     end
@@ -52,5 +54,7 @@ function NameServer:getURI(name)
         local host = uristring.state[4]
         local port = uristring.state[5]
         return format("%s:%s@%s:%d", protocol, object, host, port)
+    else
+        debug:message(uristring, format('[%s] URI LOOKUP', (name or self.name)))
     end
 end
