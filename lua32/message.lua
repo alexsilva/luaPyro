@@ -99,13 +99,14 @@ function Message:_check(message, required_msg_types)
     local required_msg = required_msg_types or {}
     local valid = false
     local i = 1
-    while required_msg[i] ~= nil and required_msg[i] ~= message.msg_type do
-        if required_msg[i] == message.msg_type then valid = true end
+    while required_msg[i] ~= nil do
+        if required_msg[i] == message.msg_type then
+            i = getn(required_msg) -- break
+            valid = true
+        end
         i = i + 1
     end
-    if valid == false then
-        debug:message(valid, 'INVALID RECEIVED MESSAGE!')
-    end
+    debug:message(valid, 'MESSAGE IS VALID')
     return valid
 end
 
