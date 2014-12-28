@@ -24,7 +24,7 @@ debug = {
             end
         end
         if config.DEBUG_LOG_IN_FILE == true then
-             self.messagefile(object, header)
+             self:messagefile(object, header)
         end
     end,
     -- log in file
@@ -32,8 +32,7 @@ debug = {
         local hnd = openfile(config.DEBUG_LOG_PATH, "a+")
         str = tostring(str)
         if (hnd) then
-            write(hnd, "[", date() or '', "] ", (header or ''))
-            write(hnd, "Log: " .. str .. "\n")
+            write(hnd, "[", date() or '', "] ", (header or ''), " - " .. str .. "\n")
             closefile(hnd)
         end
     end
