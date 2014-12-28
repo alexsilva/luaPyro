@@ -8,8 +8,8 @@
 
 local package = '/Pyrolite/lua32'
 
-dofile(__path__ .. package .. '/serializers/json.lua')
-dofile(__path__ .. package .. '/configuration.lua')
+dofile(__PATH__ .. package .. '/serializers/json.lua')
+dofile(__PATH__ .. package .. '/configuration.lua')
 
 local TYPES = {
     ["serpent"] = {

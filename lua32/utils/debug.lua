@@ -6,7 +6,7 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-dofile(__path__ .. '/Pyrolite/lua32/configuration.lua')
+dofile(__PATH__ .. '/Pyrolite/lua32/configuration.lua')
 
 -- debug messages - by config
 debug = {

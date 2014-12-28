@@ -7,11 +7,11 @@
 --
 
 
-dofile(__path__ .. '/Pyrolite/lua32/core.lua')
-dofile(__path__ .. '/Pyrolite/lua32/configuration.lua')
-dofile(__path__ .. '/Pyrolite/lua32/constants.lua')
-dofile(__path__ .. '/Pyrolite/lua32/pyrouri.lua')
-dofile(__path__ .. '/Pyrolite/lua32/utils/debug.lua')
+dofile(__PATH__ .. '/Pyrolite/lua32/core.lua')
+dofile(__PATH__ .. '/Pyrolite/lua32/configuration.lua')
+dofile(__PATH__ .. '/Pyrolite/lua32/constants.lua')
+dofile(__PATH__ .. '/Pyrolite/lua32/pyrouri.lua')
+dofile(__PATH__ .. '/Pyrolite/lua32/utils/debug.lua')
 
 -- object (class)
 NameServer = settag({URIFormatString = "PYRO:%s@%s:%d"}, newtag())

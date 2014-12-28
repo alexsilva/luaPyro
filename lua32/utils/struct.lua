@@ -8,7 +8,7 @@
 
 local bitpackage = '/luabit-legacy/luabit-0.1'
 
-dofile(__path__ .. bitpackage .. '/bit.lua')
+dofile(__PATH__ .. bitpackage .. '/bit.lua')
 
 struct = {}
 

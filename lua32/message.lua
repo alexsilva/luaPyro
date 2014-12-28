@@ -9,9 +9,9 @@
 local bitpackage = '/luabit-legacy/luabit-0.1'
 local proxypackage = '/Pyrolite/lua32'
 
-dofile(__path__ .. bitpackage .. '/bit.lua')
-dofile(__path__ .. proxypackage .. '/utils/struct.lua')
-dofile(__path__ .. proxypackage .. '/configuration.lua')
+dofile(__PATH__ .. bitpackage .. '/bit.lua')
+dofile(__PATH__ .. proxypackage .. '/utils/struct.lua')
+dofile(__PATH__ .. proxypackage .. '/configuration.lua')
 
 -- object (class)
 Message = settag({}, newtag())

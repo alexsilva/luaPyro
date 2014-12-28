@@ -8,10 +8,10 @@
 
 local package = '/Pyrolite/lua32'
 
-dofile(__path__ .. package .. '/message.lua')
-dofile(__path__ .. package .. '/serializer.lua')
-dofile(__path__ .. package .. '/pyrouri.lua')
-dofile(__path__ .. package .. '/utils/debug.lua')
+dofile(__PATH__ .. package .. '/message.lua')
+dofile(__PATH__ .. package .. '/serializer.lua')
+dofile(__PATH__ .. package .. '/pyrouri.lua')
+dofile(__PATH__ .. package .. '/utils/debug.lua')
 
 -- object (class)
 Proxy = settag({}, newtag())
