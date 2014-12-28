@@ -46,16 +46,28 @@ end
 
 -- Creates, initializes the proxy connection.
 function Proxy:start_connection()
-    local conn, smsg = connect(self.uri.loc, self.uri.port)
-
-    self.connection = conn
     debug:message(smsg, 'PROXY CONNECTION')
+
+    local conn, smsg = connect(self.uri.loc, self.uri.port)
+    self.connection = conn
 
     return Message:recv(conn)
 end
 
+-- Close proxy connection
+function Proxy:close()
+    if type(self.connection) == 'userdata' then
+        self.connection:close()
+        self.connection = nil
+    end
+end
+
 -- Calls the remote method
 function Proxy:call(method, args, kwargs)
+    if type(self.connection) ~= 'userdata' then
+        -- connection closed ?
+        self:start_connection()
+    end
     local params = {
         object = self.uri.objectid,
         method = method,
