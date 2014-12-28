@@ -94,12 +94,27 @@ function Message:from_header(headers_data)
     return message
 end
 
+-- Checks whether the received message is valid type.
+function Message:_check(message, required_msg_types)
+    local required_msg = required_msg_types or {}
+    local valid = false
+    local i = 1
+    while required_msg[i] ~= nil and required_msg[i] ~= message.msg_type do
+        if required_msg[i] == message.msg_type then valid = true end
+        i = i + 1
+    end
+    if valid == false then
+        debug:message(valid, 'INVALID RECEIVED MESSAGE!')
+    end
+    return valid
+end
 
-function Message:recv(connection, requiredMsgTypes, hmac_key)
+function Message:recv(connection, required_msg_types, hmac_key)
     local data = connection:receive(self.HEADER_SIZE)
 
     local message = self:from_header(data)
     message.data = connection:receive(message.data_size)
+    self:_check(message, required_msg_types)
 
     return message
 end
