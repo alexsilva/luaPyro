@@ -56,12 +56,10 @@ function struct.toShortInt32(self, a, b)
 end
 
 -- Calculates the checksum of integers tables
-function struct.checksum(self, args)
-    local i, r = 1, 0
-    local size = getn(args)
-    while i <= size  do
-        r  = r + args[i]
-        i = i + 1
-    end
-    return bit.band(r, 65535)
+function struct.checksum(self, ...)
+    local sum = {total = 0}
+    foreachi(arg, function(index, value)
+        %sum.total = %sum.total + value
+    end)
+    return bit.band(sum.total, 65535)
 end
