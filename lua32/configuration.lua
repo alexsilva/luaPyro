@@ -21,7 +21,7 @@ config = {
     METADATA = true,		-- get metadata from server?
     DAEMON_NAME = "Pyro.Daemon",
     -- debug settings
-    DEBUG_LOG_PATH = __LOG__ .. '/lua_rpc_debug.log',
+    DEBUG_LOG_PATH = __PATH__ .. '/lua_rpc_debug.log',
     DEBUG_LOG_IN_FILE = true,
     DEBUG = false
 }
