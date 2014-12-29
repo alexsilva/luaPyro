@@ -22,8 +22,13 @@ settagmethod(tag(NameServer), 'index', function(tbl, name)
 end)
 
 -- NameServer constructor
-function NameServer:new(name)
-    return settag({name=name}, tag(NameServer))
+function NameServer:new(name, hmac_key)
+    return settag({name=name, hmac_key=hmac_key}, tag(NameServer))
+end
+
+-- key of hmac signature(if needed)
+function NameServer:set_hmac(key)
+    self.hmac_key=key
 end
 
 function NameServer:locateNS(host, port, broadcast, hmac_key)
@@ -35,6 +40,8 @@ function NameServer:locateNS(host, port, broadcast, hmac_key)
         local uristring = format(self.URIFormatString, constants.NAMESERVER_NAME, host, port)
 
         self.proxy = Proxy:new(uristring)
+        self.proxy:set_hmac(self.hmac_key)
+
         debug:message(self.proxy.ping(), '[ping] PROXY CALL RESULT')
 
         return self

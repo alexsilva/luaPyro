@@ -40,7 +40,7 @@ settagmethod(tag(Message), 'index', function(tbl, name)
 end)
 
 --- Message constructor
-function Message:new(msg_type, serializer_id, seq, data, flags, annotations)
+function Message:new(msg_type, serializer_id, seq, data, flags, annotations, hmac_key)
     local self = settag({}, tag(Message))
 
     self.serializer_id = serializer_id
@@ -53,11 +53,19 @@ function Message:new(msg_type, serializer_id, seq, data, flags, annotations)
     self.data_size = strlen(self.data)
 
     self.annotations = annotations or {}
-    self.annotations_size = getn(self.annotations)
 
+    if type(hmac_key) == 'string' and strlen(hmac_key) > 0 then
+        self.annotations['HMAC'] = self:hmac(hmac_key)
+    end
+
+    -- size of annotation
+    local annotation = {size = 0}
+    foreach(self.annotations, function(index, value)
+        %annotation.size = %annotation.size + strlen(value) + 6
+    end)
+    self.annotations_size = annotation.size
     return self
 end
-
 
 function Message:from_header(headers_data)
     local message = Message:new()
@@ -81,7 +89,7 @@ function Message:from_header(headers_data)
 
     message.checksum = struct:toShortInt32(strbyte(headers_data, 23), strbyte(headers_data, 24))
 
-    message.checksum_calc = struct:checksum({
+    message.checksum_calc = struct:checksum(
         message.msg_type,
         message.version,
         message.data_size,
@@ -90,8 +98,17 @@ function Message:from_header(headers_data)
         message.flags,
         message.seq,
         message.CHECKSUM_MAGIC
-    })
+    )
     return message
+end
+
+-- returns the hmac of the data and the annotation chunk values (except HMAC chunk itself)
+function Message:hmac(key)
+    --local mac = sha1.hmac(key, self.data)
+    foreach(self.annotations, function(index, value)
+        -- implement this!
+    end)
+    return ''
 end
 
 -- Checks whether the received message is valid type.
@@ -110,29 +127,64 @@ function Message:_check(message, required_msg_types)
     return valid
 end
 
+-- Receives a pyro message from a given connection.
+-- Accepts the given message types (None=any, or pass a sequence).
+-- Also reads annotation chunks and the actual payload data.
+-- Validates a HMAC chunk if present.
 function Message:recv(connection, required_msg_types, hmac_key)
-    local data = connection:receive(self.HEADER_SIZE)
-
-    local message = self:from_header(data)
-    message.data = connection:receive(message.data_size)
-    self:_check(message, required_msg_types)
-
-    return message
+    local header_data = connection:receive(self.HEADER_SIZE)
+    local msg = self:from_header(header_data)
+    -- read annotation chunks
+    if msg.annotations_size > 0 then
+        msg.annotations_data = connection:receive(msg.annotations_size)
+        local i = 1
+        while i < msg.annotations_size do
+            local key = strsub(msg.annotations_data, i, i + 3)
+            -- annotation value size
+            local length = bit.bor(
+                bit.blshift(strbyte(msg.annotations_data, i + 4), 8),
+                strbyte(msg.annotations_data, i + 5))
+            local annotations_bytes = strsub(msg.annotations_data, i + 6, i + 6 + length)
+            msg.annotations[key] = annotations_bytes
+            debug:message(msg.annotations[key], strlen(msg.annotations[key]))
+            i = i + 6 + length
+        end
+    end
+    -- read data
+    msg.data = connection:receive(msg.data_size)
+    self:_check(msg, required_msg_types)
+    return msg
 end
 
 function Message:to_bytes()
-    local header_bytes = self:get_header_bytes();
-    local annotations_bytes = {}
+    local header_bytes = self:get_header_bytes()
+    local annotations_bytes = self:get_annotations_bytes()
 
-    local data = {text = ""}
+    local message = {text = ""}
 
-    foreach(header_bytes, function(i, v)
-        %data.text = %data.text .. v
+    foreach(header_bytes, function(index, value)
+        % message.text = % message.text .. value
     end)
 
-    return data.text .. self.data
+    foreachi(annotations_bytes, function(index, value)
+        % message.text = % message.text .. value
+    end)
+
+    return message.text .. self.data
 end
 
+function Message:get_annotations_bytes()
+    local chunks = {}
+    foreach(self.annotations, function(key, value)
+        assert(strlen(key) == 4, 'annotation key must be length 4')
+        local size = getn(% chunks)
+        % chunks[size + 1] = key
+        % chunks[size + 2] = struct:ser_shortInt32(strlen(value))
+        % chunks[size + 3] = value
+    end)
+    debug:message(chunks, 'chunks')
+    return chunks
+end
 
 --header format: '!4sHHHHiHHHH' (24 bytes)
 --    4   id ('PYRO')
@@ -149,7 +201,7 @@ end
 function Message:get_header_bytes()
     self.seq = self.seq + 1
 
-    local checksum = struct:checksum({
+    local checksum = struct:checksum(
         self.msg_type,
         config.PROTOCOL_VERSION,
         self.data_size,
@@ -158,7 +210,7 @@ function Message:get_header_bytes()
         self.serializer_id,
         self.seq,
         self.CHECKSUM_MAGIC
-    })
+    )
 
     local headers = {
         'PYRO',

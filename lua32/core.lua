@@ -37,14 +37,19 @@ function Proxy:new(uri, with_metadata)
     self.uri = PyroURI:new(uri)
     self.serializer = Serializer:new()
     self.with_metadata = with_metadata
+    self.hmac_key = nil
     self.metadata = {}
 
-    self:start_connection()
     return self
 end
 
 function Proxy:set_serializer(name)
     self.serializer:set_type(name)
+end
+
+-- key of hmac signature(if needed)
+function Proxy:set_hmac(key)
+    self.hmac_key = key
 end
 
 -- Creates, initializes the proxy connection.
@@ -53,7 +58,7 @@ function Proxy:start_connection()
     debug:message(smsg, 'PROXY CONNECTION MSG')
 
     self.connection = conn
-    local message = Message:recv(conn, {Message.MSG_CONNECTOK})
+    local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.hmac_key)
 
     if self.with_metadata == true or config.METADATA == true then
         self.metadata = self:call('get_metadata', config.DAEMON_NAME, {self.uri.objectid}, {})
@@ -85,7 +90,9 @@ function Proxy:call(method, objectid, args, kwargs)
     local data = self.serializer:dumps(params)
     debug:message(data, format('[%s] SENT JSON', method))
 
-    local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(), 0, data)
+    -- msg_type, serializer_id, seq, data, flags, annotations, hmac_key
+    local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(),
+                                0, data, 0, {}, self.hmac_key)
     self.connection:send(message:to_bytes())
 
     message = message:recv(self.connection)
