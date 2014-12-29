@@ -146,7 +146,6 @@ function Message:recv(connection, required_msg_types, hmac_key)
                 strbyte(msg.annotations_data, i + 5))
             local annotations_bytes = strsub(msg.annotations_data, i + 6, i + 6 + length)
             msg.annotations[key] = annotations_bytes
-            debug:message(msg.annotations[key], strlen(msg.annotations[key]))
             i = i + 6 + length
         end
     end
