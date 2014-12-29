@@ -182,7 +182,6 @@ function Message:get_annotations_bytes()
         % chunks[size + 2] = struct:ser_shortInt32(strlen(value))
         % chunks[size + 3] = value
     end)
-    debug:message(chunks, 'chunks')
     return chunks
 end
 
