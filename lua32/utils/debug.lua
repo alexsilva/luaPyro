@@ -31,7 +31,7 @@ debug = {
     messagefile = function(self, str, header)
         local hnd = openfile(config.DEBUG_LOG_PATH, "a+")
         str = tostring(str)
-        if (hnd) then
+        if (hnd ~= nil and hnd ~= -1) then
             write(hnd, "[", date() or '', "] ", (header or ''), " - " .. str .. "\n")
             closefile(hnd)
         end
