@@ -31,13 +31,14 @@ end)
 
 
 -- Proxy constructor
-function Proxy:new(uri, with_metadata)
+function Proxy:new(uri, params)
+    if params == nil then params = {} end
     local self = settag({}, tag(Proxy))
 
     self.uri = PyroURI:new(uri)
     self.serializer = Serializer:new()
-    self.with_metadata = with_metadata
-    self.hmac_key = nil
+    self.load_metadata = params.load_metadata
+    self.hmac_key = params.hmac_key
     self.metadata = {}
 
     return self
@@ -60,7 +61,7 @@ function Proxy:start_connection()
     self.connection = conn
     local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.hmac_key)
 
-    if self.with_metadata == true or config.METADATA == true then
+    if self.load_metadata == true or config.METADATA == true then
         self.metadata = self:call('get_metadata', config.DAEMON_NAME, {self.uri.objectid}, {})
         debug:message(self.metadata, 'GET-METADATA: ' .. self.uri.objectid)
     end
