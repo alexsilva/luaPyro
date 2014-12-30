@@ -12,6 +12,7 @@ local proxypackage = '/Pyrolite/lua32'
 dofile(__PATH__ .. bitpackage .. '/bit.lua')
 dofile(__PATH__ .. proxypackage .. '/utils/struct.lua')
 dofile(__PATH__ .. proxypackage .. '/configuration.lua')
+dofile(__PATH__ .. '/sha1.lua/sha1.lua')
 
 -- object (class)
 Message = settag({}, newtag())
@@ -104,11 +105,11 @@ end
 
 -- returns the hmac of the data and the annotation chunk values (except HMAC chunk itself)
 function Message:hmac(key)
-    --local mac = sha1.hmac(key, self.data)
+    local mac = sha1.hmac_binary(key, self.data)
     foreach(self.annotations, function(index, value)
         -- implement this!
     end)
-    return ''
+    return mac
 end
 
 -- Checks whether the received message is valid type.
