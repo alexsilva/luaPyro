@@ -115,17 +115,12 @@ function Message:hmac(key)
 end
 
 -- Checks whether the received message is valid type.
-function Message:_check(message, required_msg_types)
-    local required_msg = required_msg_types or {}
-    local valid = false
-    local i = 1
-    while required_msg[i] ~= nil do
-        if required_msg[i] == message.msg_type then
-            i = getn(required_msg) -- break
-            valid = true
+function Message:_check(message, required_msgType)
+    local valid = foreachi((required_msgType or {}), function(index, msg_type)
+        if msg_type == %message.msg_type then
+            return true
         end
-        i = i + 1
-    end
+    end)
     debug:message(valid, 'MESSAGE IS VALID')
     return valid
 end
