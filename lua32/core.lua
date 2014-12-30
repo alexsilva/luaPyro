@@ -92,8 +92,12 @@ function Proxy:call(method, objectid, args, kwargs)
     debug:message(data, format('[%s] SENT JSON', method))
 
     -- msg_type, serializer_id, seq, data, flags, annotations, hmac_key
-    local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(),
-                                0, data, 0, {}, self.hmac_key)
+    local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(), {
+            hmac_key = self.hmac_key,
+            annotations = {},
+            flag = 0,
+            data = data,
+            seq = 0})
     self.connection:send(message:to_bytes())
 
     message = message:recv(self.connection)

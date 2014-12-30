@@ -40,23 +40,25 @@ settagmethod(tag(Message), 'index', function(tbl, name)
     return rawgettable(Message, name)
 end)
 
---- Message constructor
-function Message:new(msg_type, serializer_id, seq, data, flags, annotations, hmac_key)
+--- Message constructor (params: seq, data, flags, annotations, hmac_key)
+function Message:new(msg_type, serializer_id, params)
+    if params == nil then params = {} end
     local self = settag({}, tag(Message))
 
     self.serializer_id = serializer_id
     self.msg_type = msg_type
 
-    self.flags = flags or 0
-    self.seq = seq or 0
+    self.flags = params.flags or 0
+    self.seq = params.seq or 0
 
-    self.data = data or ''
+    self.data = params.data or ""
     self.data_size = strlen(self.data)
 
-    self.annotations = annotations or {}
+    self.annotations = params.annotations or {}
+    self.hmac_key = params.hmac_key
 
-    if type(hmac_key) == 'string' and strlen(hmac_key) > 0 then
-        self.annotations['HMAC'] = self:hmac(hmac_key)
+    if type(self.hmac_key) == 'string' and strlen(self.hmac_key) > 0 then
+        self.annotations['HMAC'] = self:hmac(self.hmac_key)
     end
 
     -- size of annotation
