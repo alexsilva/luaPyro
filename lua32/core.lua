@@ -100,7 +100,7 @@ function Proxy:call(method, objectid, args, kwargs)
             seq = 0})
     self.connection:send(message:to_bytes())
 
-    message = message:recv(self.connection)
+    message = message:recv(self.connection, {Message.MSG_RESULT}, self.hmac_key)
     debug:message(message.data, format('[%s] RECEIVED JSON', method))
 
     return self.serializer:loads(message.data)

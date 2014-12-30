@@ -155,6 +155,9 @@ function Message:recv(connection, required_msg_types, hmac_key)
     -- read data
     msg.data = connection:receive(msg.data_size)
     self:_check(msg, required_msg_types)
+    if hmac_key and msg.annotations['HMAC'] ~= msg:hmac(hmac_key) then
+        error('[1] Security error!')
+    end
     return msg
 end
 
