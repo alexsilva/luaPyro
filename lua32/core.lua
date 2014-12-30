@@ -63,7 +63,7 @@ function Proxy:start_connection()
 
     if self.load_metadata == true or config.METADATA == true then
         self.metadata = self:call('get_metadata', config.DAEMON_NAME, {self.uri.objectid}, {})
-        debug:message(self.metadata, 'GET-METADATA: ' .. self.uri.objectid)
+        debug:message(self.metadata, 'METADATA: ' .. self.uri.objectid)
     end
     return message
 end
