@@ -16,9 +16,10 @@ debug = {
     -- log in screen
     message = function(self, object, header)
         if config.DEBUG == true then
-            if header then self:println(header) end
             if type(object) == 'table' then
                 tprint(object) -- print tables
+            elseif header then
+                self:println(header .. ' ::: ' .. tostring(object))
             else
                 self:println(object)
             end
@@ -32,7 +33,7 @@ debug = {
         local hnd = openfile(config.DEBUG_LOG_PATH, "a+")
         str = tostring(str)
         if (hnd ~= nil and hnd ~= -1) then
-            write(hnd, "[", date() or '', "] ", (header or ''), " - " .. str .. "\n")
+            write(hnd, "[", date() or '', "] ", (header or ''), ' ::: ' .. str .. "\n")
             closefile(hnd)
         end
     end
