@@ -13,10 +13,12 @@ dofile(__PATH__ .. package .. '/serializer.lua')
 dofile(__PATH__ .. package .. '/pyrouri.lua')
 dofile(__PATH__ .. package .. '/utils/debug.lua')
 dofile(__PATH__ .. package .. '/configuration.lua')
+dofile(__PATH__ .. package .. '/classes.lua')
 
 -- object (class)
 Proxy = settag({}, newtag())
 
+dofile(__PATH__ .. package .. '/flame.lua')
 
 -- Method of resolution of the proxy Proxy instances.
 settagmethod(tag(Proxy), 'index', function(self, name)
@@ -51,6 +53,7 @@ end
 -- key of hmac signature(if needed)
 function Proxy:set_hmac(key)
     self.hmac_key = key
+    return self
 end
 
 -- Creates, initializes the proxy connection.
@@ -103,5 +106,16 @@ function Proxy:call(method, objectid, args, kwargs)
     message = message:recv(self.connection, {Message.MSG_RESULT}, self.hmac_key)
     debug:message(message.data, format('[%s] RECEIVED JSON', method))
 
-    return self.serializer:loads(message.data)
+    local data = self.serializer:loads(message.data)
+
+    -- FLAME objects
+    if type(data) == 'table' then
+        if data["__class__"] ==  classes.FLAMEBUILTING then
+            return FrameBuitin:new(data):set_hmac(self.hmac_key)
+
+        elseif type(data) == 'table' and data["module"] then
+            return FrameModule:new(data):set_hmac(self.hmac_key)
+        end
+    end
+    return data
 end
