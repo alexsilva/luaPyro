@@ -21,7 +21,7 @@ function FrameBuitin:new(params)
     local URI = params.flameserver.state[1]
     debug:message(URI, 'FRAMESERVER URI')
 
-    self = Proxy.new(self, URI, params)
+    local self = Proxy.new(self, URI, params)
     self.builtin = params.builtin
 
     -- faz o objeto chamavel
@@ -35,32 +35,34 @@ function FrameBuitin:new(params)
     return self
 end
 
+-- FrameModule(class)
+FrameModule = settag({}, newtag())
 
-FrameModule = settag({}, tag(Proxy))
+function FrameModule:new(data, params)
+    assert(data.flameserver['__class__'] == classes.PROXY, 'Invalid Frame!')
 
-function FrameModule:new(params)
-    assert(params.flameserver['__class__'] == classes.PROXY, 'Invalid Frame!')
+    local self = settag({}, tag(FrameModule))
 
-    local URI = params.flameserver.state[1]
+    local URI = data.flameserver.state[1]
     debug:message(URI, 'FRAMESERVER URI')
 
-    self = Proxy.new(self, URI, params)
-    self.module = params.module
+    self.proxy = Proxy:new(URI, params)
+    self.module = data.module
 
-    -- faz o objeto chamavel
     settagmethod(tag(self), 'index', function(self, name)
-        if rawgettable(Proxy, name) then
-            return rawgettable(Proxy, name)
+        if rawgettable(FrameModule, name) then
+            return rawgettable(FrameModule, name)
         else
             return function(...)
-                local args = {%self.module .. '.' .. %name }
+                local args = {%self.module .. '.' .. %name}
 
-                args[2] = {arg[1] or {}}
+                args[2] =  arg[1] or {}
                 args[3] =  arg[2] or {}
 
-                return %self:call('invokeModule', %self.uri.objectid, args, {})
+                return %self.proxy:call('invokeModule', %self.proxy.uri.objectid, args, {})
             end
         end
+
     end)
     return self
 end

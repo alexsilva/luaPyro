@@ -114,7 +114,7 @@ function Proxy:call(method, objectid, args, kwargs)
             return FrameBuitin:new(data):set_hmac(self.hmac_key)
 
         elseif type(data) == 'table' and data["module"] then
-            return FrameModule:new(data):set_hmac(self.hmac_key)
+            return FrameModule:new(data, {hmac_key=self.hmac_key})
         end
     end
     return data
