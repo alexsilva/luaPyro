@@ -17,7 +17,7 @@ debug = {
     message = function(self, object, header)
         if config.DEBUG == true then
             if type(object) == 'table' then
-                self:println(header)
+                if header then self:println(header) end
                 tprint(object) -- print tables
             elseif header then
                 self:println(header .. ' ::: ' .. tostring(object))
