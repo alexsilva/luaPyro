@@ -16,7 +16,7 @@ dofile(__PATH__ .. '/Pyrolite/lua32/utils/debug.lua')
 FlameBuiltin = settag({}, tag(Proxy))
 
 function FlameBuiltin:new(params)
-    assert(params.flameserver['__class__'] == classes.PROXY, 'Invalid Frame!')
+    assert(params.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
 
     local URI = params.flameserver.state[1]
     debug:message(URI, 'FLAMESERVER URI')
@@ -56,7 +56,7 @@ settagmethod(tag(FlameModule), 'index', function(self, name)
 end)
 
 function FlameModule:new(data, params)
-    assert(data.flameserver['__class__'] == classes.PROXY, 'Invalid Frame!')
+    assert(data.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
 
     local URI = data.flameserver.state[1]
     debug:message(URI, 'FLAMESERVER URI')
