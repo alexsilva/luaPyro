@@ -9,7 +9,7 @@
 
 classes = {
     URI = 'Pyro4.core.URI',
-    FLAMEBUILTING = 'Pyro4.utils.flame.FlameBuiltin',
+    FLAMEBUILTIN = 'Pyro4.utils.flame.FlameBuiltin',
     PROXY = 'Pyro4.core.Proxy'
 }
 
