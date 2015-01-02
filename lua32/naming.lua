@@ -12,6 +12,7 @@ dofile(__PATH__ .. '/Pyrolite/lua32/configuration.lua')
 dofile(__PATH__ .. '/Pyrolite/lua32/constants.lua')
 dofile(__PATH__ .. '/Pyrolite/lua32/pyrouri.lua')
 dofile(__PATH__ .. '/Pyrolite/lua32/utils/debug.lua')
+dofile(__PATH__ .. '/Pyrolite/lua32/classes.lua')
 
 -- object (class)
 NameServer = settag({URIFormatString = "PYRO:%s@%s:%d"}, newtag())
@@ -54,7 +55,7 @@ function NameServer:getURI(name)
     end
     local uristring = self.proxy.lookup({name or self.name})
 
-    if (type(uristring) == 'table' and uristring['__class__'] == 'Pyro4.core.URI') then
+    if (type(uristring) == 'table' and uristring['__class__'] == classes.URI) then
         local protocol = uristring.state[1]
         local object = uristring.state[2]
         local sockname = uristring.state[3]
