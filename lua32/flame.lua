@@ -13,9 +13,9 @@ dofile(__PATH__ .. '/Pyrolite/lua32/utils/debug.lua')
 
 
 -- FrameBuitin(Proxy) - class
-FrameBuitin = settag({}, tag(Proxy))
+FlameBuiltin = settag({}, tag(Proxy))
 
-function FrameBuitin:new(params)
+function FlameBuiltin:new(params)
     assert(params.flameserver['__class__'] == classes.PROXY, 'Invalid Frame!')
 
     local URI = params.flameserver.state[1]
@@ -36,12 +36,12 @@ function FrameBuitin:new(params)
 end
 
 -- FrameModule(class)
-FrameModule = settag({}, newtag())
+FlameModule = settag({}, newtag())
 
-function FrameModule:new(data, params)
+function FlameModule:new(data, params)
     assert(data.flameserver['__class__'] == classes.PROXY, 'Invalid Frame!')
 
-    local self = settag({}, tag(FrameModule))
+    local self = settag({}, tag(FlameModule))
 
     local URI = data.flameserver.state[1]
     debug:message(URI, 'FRAMESERVER URI')
@@ -50,8 +50,8 @@ function FrameModule:new(data, params)
     self.module = data.module
 
     settagmethod(tag(self), 'index', function(self, name)
-        if rawgettable(FrameModule, name) then
-            return rawgettable(FrameModule, name)
+        if rawgettable(FlameModule, name) then
+            return rawgettable(FlameModule, name)
         else
             return function(...)
                 local args = {%self.module .. '.' .. %name}
