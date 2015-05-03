@@ -6,7 +6,7 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-local package = '/Pyrolite/lua32'
+local package = '/lua32'
 
 dofile(__PATH__ .. package .. '/message.lua')
 dofile(__PATH__ .. package .. '/serializer.lua')

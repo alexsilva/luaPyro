@@ -7,9 +7,9 @@
 --
 
 
-dofile(__PATH__ .. '/Pyrolite/lua32/message.lua')
-dofile(__PATH__ .. '/Pyrolite/lua32/classes.lua')
-dofile(__PATH__ .. '/Pyrolite/lua32/utils/debug.lua')
+dofile(__PATH__ .. '/lua32/message.lua')
+dofile(__PATH__ .. '/lua32/classes.lua')
+dofile(__PATH__ .. '/lua32/utils/debug.lua')
 
 
 -- FrameBuitin(Proxy) - class

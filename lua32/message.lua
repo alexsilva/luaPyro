@@ -6,13 +6,10 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-local bitpackage = '/luabit-legacy/luabit-0.1'
-local proxypackage = '/Pyrolite/lua32'
-
-dofile(__PATH__ .. bitpackage .. '/bit.lua')
-dofile(__PATH__ .. proxypackage .. '/utils/struct.lua')
-dofile(__PATH__ .. proxypackage .. '/configuration.lua')
-dofile(__PATH__ .. '/sha1.lua/sha1.lua')
+dofile(__PATH__ .. '/luabit/bit.lua')
+dofile(__PATH__ .. '/lua32/utils/struct.lua')
+dofile(__PATH__ .. '/lua32/configuration.lua')
+dofile(__PATH__ .. '/sha1/sha1.lua')
 
 -- object (class)
 Message = settag({}, newtag())

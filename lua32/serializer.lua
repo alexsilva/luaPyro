@@ -6,10 +6,8 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-local package = '/Pyrolite/lua32'
-
-dofile(__PATH__ .. package .. '/serializers/json.lua')
-dofile(__PATH__ .. package .. '/configuration.lua')
+dofile(__PATH__ .. '/lua32/serializers/json.lua')
+dofile(__PATH__ .. '/lua32/configuration.lua')
 
 local TYPES = {
     ["serpent"] = {

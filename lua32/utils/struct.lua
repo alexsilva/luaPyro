@@ -6,9 +6,7 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-local bitpackage = '/luabit-legacy/luabit-0.1'
-
-dofile(__PATH__ .. bitpackage .. '/bit.lua')
+dofile(__PATH__ .. '/luabit/bit.lua')
 
 struct = {}
 
