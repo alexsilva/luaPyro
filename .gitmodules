@@ -1,3 +1,6 @@
 [submodule "luabit"]
 	path = luabit
 	url = https://github.com/alexsilva/luabit-legacy.git
+[submodule "sha1"]
+	path = sha1
+	url = https://github.com/alexsilva/sha1.lua-fallback.git
