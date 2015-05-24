@@ -9,7 +9,7 @@
 dofile(__PATH__ .. '/luabit/bit.lua')
 dofile(__PATH__ .. '/api-lua3.2/utils/struct.lua')
 dofile(__PATH__ .. '/api-lua3.2/configuration.lua')
-dofile(__PATH__ .. '/api-lua3.2/sha1.lua')
+dofile(__PATH__ .. '/sha1/sha1.lua')
 
 -- object (class)
 Message = settag({}, newtag())
