@@ -1,3 +1,4 @@
+# coding=utf-8
 import argparse
 import shutil
 import os
@@ -8,13 +9,18 @@ __author__ = 'alex'
 class Builder(object):
     """build release pack"""
 
-    def __init__(self, dirs, outdir, ftypes, location=os.getcwd()):
+    def __init__(self, dirs, outdir, ftypes, location=os.getcwd(), dropout=False):
         self.dirs = dirs
         self.ftypes = ftypes
         self.location = os.path.abspath(os.path.normpath(location))
         self.outdir = os.path.abspath(os.path.normpath(outdir))
+        self.dropout = dropout
 
     def build(self):
+        # remove o diretório build se configurado.
+        if self.dropout and os.path.exists(self.outdir):
+            shutil.rmtree(self.outdir)
+
         for dirname in self.dirs:
             old_location = os.path.join(self.location, dirname)
             new_location = os.path.join(self.outdir, dirname)
@@ -40,8 +46,8 @@ class Builder(object):
                             shutil.copy(old_filepath, new_filepath)
 
 
-def main(dirs, buildpath, ftypes):
-    builder = Builder(dirs, buildpath, ftypes)
+def main(dirs, buildpath, ftypes, dropout):
+    builder = Builder(dirs, buildpath, ftypes, dropout=dropout)
     builder.build()
 
 
@@ -52,10 +58,15 @@ if __name__ == '__main__':
                         dest='buildpath', default=os.path.join(os.getcwd(), 'build'),
                         help='Location for the new release.')
 
+    parser.add_argument('--dropout', action='store_true',
+                        dest='dropout', default=False,
+                        help='Delete output dir if existing.')
+
     args = parser.parse_args()
 
     main(
         ['api-lua3.2', 'luabit', 'sha1'],
         args.buildpath,
-        ['.lua']
+        ['.lua'],
+        args.dropout
     )
