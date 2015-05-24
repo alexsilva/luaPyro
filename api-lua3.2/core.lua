@@ -6,7 +6,7 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-local package = '/lua32'
+local package = '/api-lua3.2'
 
 dofile(__PATH__ .. package .. '/message.lua')
 dofile(__PATH__ .. package .. '/serializer.lua')

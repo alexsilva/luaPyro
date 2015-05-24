@@ -6,7 +6,7 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-dofile(__PATH__ .. '/lua32/configuration.lua')
+dofile(__PATH__ .. '/api-lua3.2/configuration.lua')
 
 -- debug messages - by config
 debug = {
