@@ -34,16 +34,10 @@ settagmethod(tag(Proxy), 'index', function(self, name)
             local obj =  %self:call(%name, %self.uri.objectid, (arg[1] or {}), (arg[2] or {}))
             if type(obj) == 'table' then
                 if obj['flameserver'] then -- FLAME objects
-                    if obj['flameserver'] and obj["__class__"] ==  classes.FLAMEBUILTIN then
-                        return FlameBuiltin:new(obj, {
-                            load_metadata = %self.load_metadata,
-                            hmac_key = %self.hmac_key
-                        })
+                    if obj["__class__"] ==  classes.FLAMEBUILTIN then
+                        return FlameBuiltin:new(obj, %self.params)
                     elseif obj["module"] then
-                        return FlameModule:new(obj, {
-                            load_metadata = %self.load_metadata,
-                            hmac_key = %self.hmac_key
-                        })
+                        return FlameModule:new(obj, %self.params)
                     end
                 elseif obj['__exception__'] == 'true' then -- Exception objects
                     local error = PYROException:new(
@@ -70,8 +64,7 @@ function Proxy:new(uri, params)
 
     self.uri = PyroURI:new(uri)
     self.serializer = Serializer:new()
-    self.load_metadata = params.load_metadata or 1
-    self.hmac_key = params.hmac_key
+    self.params = params
     self.metadata = {}
 
     return self
@@ -85,7 +78,7 @@ end
 -- key of hmac signature(if needed)
 ---
 function Proxy:set_hmac(key)
-    self.hmac_key = key
+    self.params.hmac_key = key
     return self
 end
 
@@ -99,7 +92,7 @@ function Proxy:start()
     self.connection = conn
     local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.hmac_key)
 
-    if self.load_metadata then
+    if self.params.load_metadata then
         self.metadata = self:call('get_metadata', config.DAEMON_NAME, {self.uri.objectid}, {})
     end
     return message
@@ -134,14 +127,14 @@ function Proxy:call(method, objectid, args, kwargs)
 
     -- msg_type, serializer_id, seq, data, flags, annotations, hmac_key
     local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(), {
-            hmac_key = self.hmac_key,
+            hmac_key = self.params.hmac_key,
             annotations = {},
             flag = 0,
             data = data,
             seq = 0})
     self.connection:send(message:to_bytes())
 
-    message = message:recv(self.connection, {Message.MSG_RESULT}, self.hmac_key)
+    message = message:recv(self.connection, {Message.MSG_RESULT}, self.params.hmac_key)
     config.LOG:info(format('[%s] RECEIVED JSON', method), message.data)
 
     return self.serializer:loads(message.data)

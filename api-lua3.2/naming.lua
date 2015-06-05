@@ -18,18 +18,22 @@ dofile(__PATH__ .. '/api-lua3.2/exceptions.lua')
 NameServer = settag({URIFormatString = "PYRO:%s@%s:%d"}, newtag())
 
 -- Method of resolution of the Message object instances
-settagmethod(tag(NameServer), 'index', function(tbl, name)
-    return rawgettable(NameServer, name)
+settagmethod(tag(NameServer), 'index', function(self, name)
+    if rawgettable(NameServer, name) then
+        return rawgettable(NameServer, name)
+    else
+        return rawgettable(self, name)
+    end
 end)
 
 -- NameServer constructor
-function NameServer:new(name, hmac_key)
-    return settag({name=name, hmac_key=hmac_key}, tag(NameServer))
+function NameServer:new(name, params)
+    return settag({name = name, params = params or {}}, tag(NameServer))
 end
 
 -- key of hmac signature(if needed)
-function NameServer:set_hmac(key)
-    self.hmac_key=key
+function NameServer:set_hmac(hmac_key)
+    self.params.hmac_key = hmac_key
 end
 
 function NameServer:locateNS(host, port, broadcast, hmac_key)
@@ -38,10 +42,14 @@ function NameServer:locateNS(host, port, broadcast, hmac_key)
         if not port then
             port = config.NS_PORT
         end
-        local uristring = format(self.URIFormatString, constants.NAMESERVER_NAME, host, port)
+        -- local hmac key set
+        if hmac_key and not self.params.hmac_key then
+            self.params.hmac_key = hmac_key
+        end
 
-        self.proxy = Proxy:new(uristring)
-        self.proxy:set_hmac(self.hmac_key)
+        local uriString = format(self.URIFormatString, constants.NAMESERVER_NAME, host, port)
+
+        self.proxy = Proxy:new(uriString, self.params)
 
         config.LOG:debug('NAMESERVER PROXY PING RESULT', self.proxy.ping())
 
