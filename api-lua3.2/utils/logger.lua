@@ -25,9 +25,15 @@ function Log:new(filepath)
     return self
 end
 
+function Log:write_handle(self, level, info, obj)
+    return nil
+end
+
 function Log:write(level, info, obj)
     assert(self.hnd ~= nil and self.hnd ~= -1, 'Log file was not opened!')
-    write(self.hnd, format(self.fmt.."\n", level, (date() or 'empty'), (info or 'empty'), tostring(obj) or 'empty'))
+    if not self:write_handle(level, info, obj) then
+        write(self.hnd, format(self.fmt.."\n", level, (date() or 'empty'), (info or 'empty'), tostring(obj) or 'empty'))
+    end
 end
 
 function Log:debug(str, obj)
