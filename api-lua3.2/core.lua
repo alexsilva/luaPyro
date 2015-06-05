@@ -92,8 +92,10 @@ end
 ---
 function Proxy:start()
     local conn, smsg = connect(self.uri.loc, self.uri.port)
-    config.LOG:debug('PROXY CONNECTION MSG', smsg)
-
+    if type(conn) ~= 'userdata' then
+        config.LOG:critical(format('PROXY CONNECTION %s:%s', self.uri.loc, self.uri.port), smsg)
+        error('Proxy connection failed: ' .. smsg)
+    end
     self.connection = conn
     local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.hmac_key)
 
