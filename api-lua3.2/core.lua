@@ -114,7 +114,7 @@ function Proxy:call(method, objectid, args, kwargs)
             return FlameBuiltin:new(data):set_hmac(self.hmac_key)
 
         elseif data["module"] then
-            return FlameModule:new(data, {hmac_key=self.hmac_key})
+            return FlameModule:new(data):set_hmac(self.hmac_key)
         end
     end
     return data
