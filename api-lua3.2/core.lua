@@ -113,7 +113,7 @@ function Proxy:call(method, objectid, args, kwargs)
         if data["__class__"] ==  classes.FLAMEBUILTIN then
             return FlameBuiltin:new(data):set_hmac(self.hmac_key)
 
-        elseif type(data) == 'table' and data["module"] then
+        elseif data["module"] then
             return FlameModule:new(data, {hmac_key=self.hmac_key})
         end
     end
