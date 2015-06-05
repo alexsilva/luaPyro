@@ -35,10 +35,15 @@ settagmethod(tag(Proxy), 'index', function(self, name)
             if type(obj) == 'table' then
                 if obj['flameserver'] then -- FLAME objects
                     if obj['flameserver'] and obj["__class__"] ==  classes.FLAMEBUILTIN then
-                        return FlameBuiltin:new(obj):set_hmac(%self.hmac_key)
-
+                        return FlameBuiltin:new(obj, {
+                            load_metadata = %self.load_metadata,
+                            hmac_key = %self.hmac_key
+                        })
                     elseif obj["module"] then
-                        return FlameModule:new(obj):set_hmac(%self.hmac_key)
+                        return FlameModule:new(obj, {
+                            load_metadata = %self.load_metadata,
+                            hmac_key = %self.hmac_key
+                        })
                     end
                 elseif obj['__exception__'] == 'true' then -- Exception objects
                     local error = PYROException:new(

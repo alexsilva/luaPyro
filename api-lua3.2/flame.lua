@@ -20,14 +20,15 @@ FlameBuiltin = settag({}, tag(Proxy))
 ---
 -- Flame construtor
 ---
-function FlameBuiltin:new(params)
-    assert(params.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
+function FlameBuiltin:new(obj, params)
+    assert(obj.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
 
-    local URI = params.flameserver.state[1]
-    config.LOG:debug('FLAMESERVER URI', URI)
+    local uriString = obj.flameserver.state[1]
+    config.LOG:debug('FLAMESERVER URI', uriString)
 
-    local self = Proxy.new(self, URI, params)
-    self.builtin = params.builtin
+    local self = Proxy:new(uriString, params)
+
+    self.builtin = obj.builtin
 
     -- faz o objeto chamavel
     settagmethod(tag(self), 'function', function(self, ...)
@@ -90,14 +91,14 @@ settagmethod(tag(FlameModule), 'index', function(self, name)
     end
 end)
 
-function FlameModule:new(data, params)
-    assert(data.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
+function FlameModule:new(obj, params)
+    assert(obj.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
 
-    local URI = data.flameserver.state[1]
-    config.LOG:debug('FLAMESERVER URI', URI)
+    local uriString = obj.flameserver.state[1]
+    config.LOG:debug('FLAMESERVER URI', uriString)
 
-    local self = settag(Proxy:new(URI, params), tag(FlameModule))
-    self.module = data.module
+    local self = settag(Proxy:new(uriString, params), tag(FlameModule))
+    self.module = obj.module
 
     return self
 end
