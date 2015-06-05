@@ -6,11 +6,10 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-
 dofile(__PATH__ .. '/api-lua3.2/message.lua')
 dofile(__PATH__ .. '/api-lua3.2/classes.lua')
 dofile(__PATH__ .. '/api-lua3.2/utils/debug.lua')
-
+dofile(__PATH__ .. '/api-lua3.2/configuration.lua')
 
 -- FrameBuitin(Proxy) - class
 FlameBuiltin = settag({}, tag(Proxy))
@@ -19,7 +18,7 @@ function FlameBuiltin:new(params)
     assert(params.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
 
     local URI = params.flameserver.state[1]
-    debug:message(URI, 'FLAMESERVER URI')
+    config.LOG:debug('FLAMESERVER URI', URI)
 
     local self = Proxy.new(self, URI, params)
     self.builtin = params.builtin
@@ -59,7 +58,7 @@ function FlameModule:new(data, params)
     assert(data.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
 
     local URI = data.flameserver.state[1]
-    debug:message(URI, 'FLAMESERVER URI')
+    config.LOG:debug('FLAMESERVER URI', URI)
 
     local self = settag(Proxy:new(URI, params), tag(FlameModule))
     self.module = data.module

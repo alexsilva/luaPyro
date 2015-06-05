@@ -9,6 +9,7 @@
 --
 
 config = {
+    LOG = nil,
     MSG_TRACE_DIR = nil,
     NS_PORT = 9090,
     NS_BCPORT = 9091,
@@ -20,9 +21,6 @@ config = {
     SERIALIZER = "json",
     METADATA = true,		-- get metadata from server?
     DAEMON_NAME = "Pyro.Daemon",
-    -- debug settings
-    DEBUG_LOG_PATH = __PATH__ .. '/lua_rpc_debug.log',
-    DEBUG_LOG_IN_FILE = true,
     DEBUG = false
 }
 

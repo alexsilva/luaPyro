@@ -12,8 +12,8 @@ dofile(__PATH__ .. package .. '/message.lua')
 dofile(__PATH__ .. package .. '/serializer.lua')
 dofile(__PATH__ .. package .. '/pyrouri.lua')
 dofile(__PATH__ .. package .. '/utils/debug.lua')
-dofile(__PATH__ .. package .. '/configuration.lua')
 dofile(__PATH__ .. package .. '/classes.lua')
+dofile(__PATH__ .. package .. '/configuration.lua')
 
 -- object (class)
 Proxy = settag({}, newtag())
@@ -59,14 +59,14 @@ end
 -- Creates, initializes the proxy connection.
 function Proxy:start_connection()
     local conn, smsg = connect(self.uri.loc, self.uri.port)
-    debug:message(smsg, 'PROXY CONNECTION MSG')
+    config.LOG:debug('PROXY CONNECTION MSG', smsg)
 
     self.connection = conn
     local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.hmac_key)
 
     if self.load_metadata == true or config.METADATA == true then
         self.metadata = self:call('get_metadata', config.DAEMON_NAME, {self.uri.objectid}, {})
-        debug:message(self.metadata, 'METADATA: ' .. self.uri.objectid)
+        config.LOG:info('METADATA: ' .. self.uri.objectid, self.metadata)
     end
     return message
 end
@@ -92,7 +92,7 @@ function Proxy:call(method, objectid, args, kwargs)
         kwargs = kwargs
     }
     local data = self.serializer:dumps(params)
-    debug:message(data, format('[%s] SENT JSON', method))
+    config.LOG:info(format('[%s] SENT JSON', method), data)
 
     -- msg_type, serializer_id, seq, data, flags, annotations, hmac_key
     local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(), {
@@ -104,7 +104,7 @@ function Proxy:call(method, objectid, args, kwargs)
     self.connection:send(message:to_bytes())
 
     message = message:recv(self.connection, {Message.MSG_RESULT}, self.hmac_key)
-    debug:message(message.data, format('[%s] RECEIVED JSON', method))
+    config.LOG:info(format('[%s] RECEIVED JSON', method), message.data)
 
     local data = self.serializer:loads(message.data)
 

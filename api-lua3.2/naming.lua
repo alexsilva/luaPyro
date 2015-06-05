@@ -6,13 +6,13 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-
 dofile(__PATH__ .. '/api-lua3.2/core.lua')
-dofile(__PATH__ .. '/api-lua3.2/configuration.lua')
 dofile(__PATH__ .. '/api-lua3.2/constants.lua')
 dofile(__PATH__ .. '/api-lua3.2/pyrouri.lua')
 dofile(__PATH__ .. '/api-lua3.2/utils/debug.lua')
+dofile(__PATH__ .. '/api-lua3.2/configuration.lua')
 dofile(__PATH__ .. '/api-lua3.2/classes.lua')
+
 
 -- object (class)
 NameServer = settag({URIFormatString = "PYRO:%s@%s:%d"}, newtag())
@@ -43,7 +43,7 @@ function NameServer:locateNS(host, port, broadcast, hmac_key)
         self.proxy = Proxy:new(uristring)
         self.proxy:set_hmac(self.hmac_key)
 
-        debug:message(self.proxy.ping(), '[ping] PROXY CALL RESULT')
+        config.LOG:debug('NAMESERVER PROXY PING RESULT', self.proxy.ping())
 
         return self
     end
@@ -63,6 +63,6 @@ function NameServer:getURI(name)
         local port = uristring.state[5]
         return format("%s:%s@%s:%d", protocol, object, host, port)
     else
-        debug:message(uristring, format('[%s] URI LOOKUP', (name or self.name)))
+        config.LOG:debug(format('NAMESERVER URI LOOKUP [%s]',  uristring))
     end
 end
