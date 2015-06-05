@@ -31,26 +31,7 @@ settagmethod(tag(Proxy), 'index', function(self, name)
         return rawgettable(self, name)
     else
         return function(...)
-            local obj =  %self:call(%name, %self.uri.objectid, (arg[1] or {}), (arg[2] or {}))
-            if type(obj) == 'table' then
-                if obj['flameserver'] then -- FLAME objects
-                    if obj["__class__"] ==  classes.FLAMEBUILTIN then
-                        return FlameBuiltin:new(obj, %self.params)
-                    elseif obj["module"] then
-                        return FlameModule:new(obj, %self.params)
-                    end
-                elseif obj['__exception__'] == 'true' then -- Exception objects
-                    local error = PYROException:new(
-                        obj['__class__'],
-                        obj['args'],
-                        obj['kwargs'],
-                        obj['attributes']['_pyroTraceback']
-                    )
-                    config.LOG:error('PROXY CALL', error:traceback_str())
-                    return error
-                end
-            end
-            return obj
+            return %self:call(%name, %self.uri.objectid, (arg[1] or {}), (arg[2] or {}))
         end
     end
 end)
@@ -142,7 +123,27 @@ function Proxy:call(method, objectid, args, kwargs)
     self.connection:send(message:to_bytes())
 
     message = message:recv(self.connection, {Message.MSG_RESULT}, self.params.hmac_key)
-    config.LOG:info(format('[%s] RECEIVED JSON', method), message.data)
 
-    return self.serializer:loads(message.data)
+    local obj = self.serializer:loads(message.data)
+
+    if type(obj) == 'table' then
+        if obj['flameserver'] then -- FLAME objects
+            if obj["__class__"] ==  classes.FLAMEBUILTIN then
+                return FlameBuiltin:new(obj, self.params)
+            elseif obj["module"] then
+                return FlameModule:new(obj, self.params)
+            end
+        elseif obj['__exception__'] == 'true' then -- Exception objects
+            local error = PYROException:new(
+                obj['__class__'],
+                obj['args'],
+                obj['kwargs'],
+                obj['attributes']['_pyroTraceback']
+            )
+            config.LOG:error('PROXY CALL', error:traceback_str())
+            return error
+        end
+    end
+    config.LOG:info(format('[%s] RECEIVED JSON', method), message.data)
+    return obj
 end
