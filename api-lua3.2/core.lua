@@ -65,7 +65,7 @@ function Proxy:new(uri, params)
 
     self.uri = PyroURI:new(uri)
     self.serializer = Serializer:new()
-    self.load_metadata = params.load_metadata
+    self.load_metadata = params.load_metadata or 1
     self.hmac_key = params.hmac_key
     self.metadata = {}
 
@@ -94,7 +94,7 @@ function Proxy:start()
     self.connection = conn
     local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.hmac_key)
 
-    if self.load_metadata == true or config.METADATA == true then
+    if self.load_metadata then
         self.metadata = self:call('get_metadata', config.DAEMON_NAME, {self.uri.objectid}, {})
     end
     return message
