@@ -10,7 +10,11 @@
 local Log = settag({}, newtag())
 
 settagmethod(tag(Log), "index", function(tbl, name)
-    return rawgettable(%Log, name)
+    if rawgettable(%Log, name) then
+        return rawgettable(%Log, name)
+    else
+        return rawgettable(tbl, name)
+    end
 end)
 
 function Log:new(filepath)
