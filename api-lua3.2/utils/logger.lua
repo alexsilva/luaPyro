@@ -19,10 +19,14 @@ end)
 
 function Log:new(filepath)
 
-    local self = settag({fmt="[%5s %s] %s ::: %s"}, tag(%Log))
+    local self = settag({fmt="[%s %s] %s ::: %s"}, tag(%Log))
     self.hnd = openfile(filepath, "a+")
 
     return self
+end
+
+function Log:format(level, info, obj)
+    return format(self.fmt, level, (date() or '00/00/00 00:00:00'), (info or 'empty'), (tostring(obj) or 'empty'))
 end
 
 function Log:write_handle(self, level, info, obj)
@@ -32,7 +36,7 @@ end
 function Log:write(level, info, obj)
     assert(self.hnd ~= nil and self.hnd ~= -1, 'Log file was not opened!')
     if not self:write_handle(level, info, obj) then
-        write(self.hnd, format(self.fmt.."\n", level, (date() or 'empty'), (info or 'empty'), tostring(obj) or 'empty'))
+        write(self.hnd, self:format(level, info, obj).."\n")
     end
 end
 
