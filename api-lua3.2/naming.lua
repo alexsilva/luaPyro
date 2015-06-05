@@ -15,7 +15,7 @@ dofile(__PATH__ .. '/api-lua3.2/classes.lua')
 dofile(__PATH__ .. '/api-lua3.2/exceptions.lua')
 
 -- object (class)
-NameServer = settag({URIFormatString = "PYRO:%s@%s:%d"}, newtag())
+NameServer = settag({}, newtag())
 
 -- Method of resolution of the Message object instances
 settagmethod(tag(NameServer), 'index', function(self, name)
@@ -47,7 +47,7 @@ function NameServer:locateNS(host, port, broadcast, hmac_key)
             self.params.hmac_key = hmac_key
         end
 
-        local uriString = format(self.URIFormatString, constants.NAMESERVER_NAME, host, port)
+        local uriString = PyroURI:format('PYRO', constants.NAMESERVER_NAME, host, port)
 
         self.proxy = Proxy:new(uriString, self.params)
 
@@ -62,24 +62,13 @@ function NameServer:getURI(name)
         local ns = self:locateNS() -- proxy set
     end
     local obj = self.proxy.lookup({name or self.name})
-    if type(obj) == 'table' then
-        if (obj['__class__'] == classes.URI) then
-            local protocol = obj.state[1]
-            local object = obj.state[2]
-            local sockname = obj.state[3]
-            local host = obj.state[4]
-            local port = obj.state[5]
-            return format("%s:%s@%s:%d", protocol, object, host, port)
-        elseif obj['__exception__'] == 'true' then
-            local error = PYROException:new(
-                obj['__class__'],
-                obj['args'],
-                obj['kwargs'],
-                obj['attributes']['_pyroTraceback']
-            )
-            config.LOG:debug('NAMESERVER LOOKUP ERROR', error:traceback_str())
-            return error
-        end
+    if type(obj) == 'table' and tag(PYROException) ~= tag(obj) and obj['__class__'] == classes.URI then
+        local protocol = obj.state[1]
+        local object = obj.state[2]
+        local sockname = obj.state[3]
+        local host = obj.state[4]
+        local port = obj.state[5]
+        return PyroURI:new(PyroURI:format(protocol, object, host, port))
     end
     return obj
 end

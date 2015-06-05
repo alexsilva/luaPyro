@@ -62,7 +62,12 @@ function Proxy:new(uri, params)
     if params == nil then params = {} end
     local self = settag({}, tag(Proxy))
 
-    self.uri = PyroURI:new(uri)
+    if tag(uri) == tag(PyroURI) then
+        self.uri = uri
+    else
+        self.uri = PyroURI:new(uri)
+    end
+
     self.serializer = Serializer:new()
     self.params = params
     self.metadata = {}
