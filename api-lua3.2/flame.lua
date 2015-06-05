@@ -32,8 +32,6 @@ end)
 -- Flame construtor
 ---
 function FlameBuiltin:new(obj, params)
-    assert(obj.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
-
     local self = settag({}, tag(FlameBuiltin))
 
     self.proxy = Proxy:new(PyroURI:new(obj.flameserver.state[1]), params)
@@ -67,8 +65,6 @@ settagmethod(tag(FlameModule), 'index', function(self, name)
 end)
 
 function FlameModule:new(obj, params)
-    assert(obj.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
-
     local self = settag({}, tag(FlameModule))
 
     self.proxy = Proxy:new(PyroURI:new(obj.flameserver.state[1]), params)
