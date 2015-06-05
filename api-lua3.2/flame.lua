@@ -11,11 +11,22 @@ dofile(__PATH__ .. '/api-lua3.2/classes.lua')
 dofile(__PATH__ .. '/api-lua3.2/utils/debug.lua')
 dofile(__PATH__ .. '/api-lua3.2/configuration.lua')
 dofile(__PATH__ .. '/api-lua3.2/exceptions.lua')
+dofile(__PATH__ .. '/api-lua3.2/pyrouri.lua')
+
 
 ---
 -- class FrameBuitin(devired of Proxy)
 ---
 FlameBuiltin = settag({}, tag(Proxy))
+
+settagmethod(tag(FlameBuiltin), 'function', function(self, ...)
+    local params = {
+        self.builtin,
+        arg[1],
+        arg[2] or {}
+    }
+    return self.proxy:call('invokeBuiltin', self.proxy.uri.objectid, params, {})
+end)
 
 ---
 -- Flame construtor
@@ -23,35 +34,10 @@ FlameBuiltin = settag({}, tag(Proxy))
 function FlameBuiltin:new(obj, params)
     assert(obj.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
 
-    local uriString = obj.flameserver.state[1]
-    config.LOG:debug('FLAMESERVER URI', uriString)
+    local self = settag({}, tag(FlameBuiltin))
 
-    local self = Proxy:new(uriString, params)
-
+    self.proxy = Proxy:new(PyroURI:new(obj.flameserver.state[1]), params)
     self.builtin = obj.builtin
-
-    -- faz o objeto chamavel
-    settagmethod(tag(self), 'function', function(self, ...)
-        local args = {
-            self.builtin,
-            arg[1],
-            arg[2] or {}
-        }
-        local obj = self:call('invokeBuiltin', self.uri.objectid, args, {})
-        if type(obj) == 'table' then
-            if obj['__exception__'] == 'true' then
-                local error = PYROException:new(
-                    obj['__class__'],
-                    obj['args'],
-                    obj['kwargs'],
-                    obj['attributes']['_pyroTraceback']
-                )
-                config.LOG:error('PROXY FRAME CALL', error:traceback_str())
-                return error
-            end
-        end
-        return obj
-    end)
 
     return self
 end
@@ -62,10 +48,10 @@ end
 FlameModule = settag({}, newtag())
 
 settagmethod(tag(FlameModule), 'index', function(self, name)
-    if rawgettable(Proxy, name) then
-        return rawgettable(Proxy, name)
-    elseif rawgettable(FlameModule, name) then
+    if rawgettable(FlameModule, name) then
         return rawgettable(FlameModule, name)
+    elseif rawgettable(self, name) then
+        return rawgettable(self, name)
     else
         return function(...)
             local args = {
@@ -73,20 +59,7 @@ settagmethod(tag(FlameModule), 'index', function(self, name)
                 arg[1] or {},
                 arg[2] or {}
             }
-            local obj = %self:call('invokeModule', % self.uri.objectid, args, {})
-            if type(obj) == 'table' then
-                if obj['__exception__'] == 'true' then
-                    local error = PYROException:new(
-                        obj['__class__'],
-                        obj['args'],
-                        obj['kwargs'],
-                        obj['attributes']['_pyroTraceback']
-                    )
-                    config.LOG:error('PROXY FRAME CALL', error:traceback_str())
-                    return error
-                end
-            end
-            return obj
+            return %self.proxy:call('invokeModule', %self.proxy.uri.objectid, args, {})
         end
     end
 end)
@@ -94,10 +67,9 @@ end)
 function FlameModule:new(obj, params)
     assert(obj.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
 
-    local uriString = obj.flameserver.state[1]
-    config.LOG:debug('FLAMESERVER URI', uriString)
+    local self = settag({}, tag(FlameModule))
 
-    local self = settag(Proxy:new(uriString, params), tag(FlameModule))
+    self.proxy = Proxy:new(PyroURI:new(obj.flameserver.state[1]), params)
     self.module = obj.module
 
     return self
