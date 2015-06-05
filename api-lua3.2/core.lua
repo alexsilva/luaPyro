@@ -57,7 +57,7 @@ function Proxy:set_hmac(key)
 end
 
 -- Creates, initializes the proxy connection.
-function Proxy:start_connection()
+function Proxy:start()
     local conn, smsg = connect(self.uri.loc, self.uri.port)
     config.LOG:debug('PROXY CONNECTION MSG', smsg)
 
@@ -83,7 +83,7 @@ end
 function Proxy:call(method, objectid, args, kwargs)
     if type(self.connection) ~= 'userdata' then
         -- connection closed ?
-        self:start_connection()
+        self:start()
     end
     local params = {
         object = objectid,
