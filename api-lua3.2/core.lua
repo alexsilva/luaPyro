@@ -33,7 +33,14 @@ settagmethod(tag(Proxy), 'index', function(self, name)
         return function(...)
             local obj =  %self:call(%name, %self.uri.objectid, (arg[1] or {}), (arg[2] or {}))
             if type(obj) == 'table' then
-                if obj['__exception__'] == 'true' then
+                if obj['flameserver'] then -- FLAME objects
+                    if obj['flameserver'] and obj["__class__"] ==  classes.FLAMEBUILTIN then
+                        return FlameBuiltin:new(obj):set_hmac(%self.hmac_key)
+
+                    elseif obj["module"] then
+                        return FlameModule:new(obj):set_hmac(%self.hmac_key)
+                    end
+                elseif obj['__exception__'] == 'true' then -- Exception objects
                     local error = PYROException:new(
                         obj['__class__'],
                         obj['args'],
@@ -133,16 +140,5 @@ function Proxy:call(method, objectid, args, kwargs)
     message = message:recv(self.connection, {Message.MSG_RESULT}, self.hmac_key)
     config.LOG:info(format('[%s] RECEIVED JSON', method), message.data)
 
-    local data = self.serializer:loads(message.data)
-
-    -- FLAME objects
-    if type(data) == 'table' then
-        if data["__class__"] ==  classes.FLAMEBUILTIN then
-            return FlameBuiltin:new(data):set_hmac(self.hmac_key)
-
-        elseif data["module"] then
-            return FlameModule:new(data):set_hmac(self.hmac_key)
-        end
-    end
-    return data
+    return self.serializer:loads(message.data)
 end
