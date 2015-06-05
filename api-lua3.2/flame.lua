@@ -47,20 +47,22 @@ end
 ---
 FlameModule = settag({}, newtag())
 
+settagmethod(tag(FlameModule), 'function', function(self, ...)
+    local params = {
+        self.module .. '.' .. self.attr,
+        arg[1] or {},
+        arg[2] or {}
+    }
+    return self.proxy:call('invokeModule', self.proxy.uri.objectid, params, {})
+end)
+
 settagmethod(tag(FlameModule), 'index', function(self, name)
     if rawgettable(FlameModule, name) then
         return rawgettable(FlameModule, name)
     elseif rawgettable(self, name) then
         return rawgettable(self, name)
     else
-        return function(...)
-            local args = {
-                %self.module .. '.' .. %name,
-                arg[1] or {},
-                arg[2] or {}
-            }
-            return %self.proxy:call('invokeModule', %self.proxy.uri.objectid, args, {})
-        end
+        return self:clone(name)
     end
 end)
 
@@ -71,6 +73,15 @@ function FlameModule:new(obj, params)
 
     self.proxy = Proxy:new(PyroURI:new(obj.flameserver.state[1]), params)
     self.module = obj.module
+    self.attr = nil
 
     return self
+end
+
+function FlameModule:clone(name)
+    local _self = settag({}, tag(FlameModule))
+    _self.proxy = self.proxy
+    _self.module = self.module
+    _self.attr = name
+    return _self
 end
