@@ -14,25 +14,44 @@ dofile(__PATH__ .. package .. '/pyrouri.lua')
 dofile(__PATH__ .. package .. '/utils/debug.lua')
 dofile(__PATH__ .. package .. '/classes.lua')
 dofile(__PATH__ .. package .. '/configuration.lua')
+dofile(__PATH__ .. package .. '/exceptions.lua')
 
 -- object (class)
 Proxy = settag({}, newtag())
 
 dofile(__PATH__ .. package .. '/flame.lua')
 
+---
 -- Method of resolution of the proxy Proxy instances.
+---
 settagmethod(tag(Proxy), 'index', function(self, name)
     if rawgettable(Proxy, name) then
         return rawgettable(Proxy, name)
+    elseif rawgettable(self, name) then
+        return rawgettable(self, name)
     else
         return function(...)
-            return %self:call(%name, %self.uri.objectid, (arg[1] or {}), (arg[2] or {}))
+            local obj =  %self:call(%name, %self.uri.objectid, (arg[1] or {}), (arg[2] or {}))
+            if type(obj) == 'table' then
+                if obj['__exception__'] == 'true' then
+                    local error = PYROException:new(
+                        obj['__class__'],
+                        obj['args'],
+                        obj['kwargs'],
+                        obj['attributes']['_pyroTraceback']
+                    )
+                    config.LOG:error('PROXY CALL', error:traceback_str())
+                    return error
+                end
+            end
+            return obj
         end
     end
 end)
 
-
+---
 -- Proxy constructor
+---
 function Proxy:new(uri, params)
     if params == nil then params = {} end
     local self = settag({}, tag(Proxy))
@@ -50,13 +69,17 @@ function Proxy:set_serializer(name)
     self.serializer:set_type(name)
 end
 
+---
 -- key of hmac signature(if needed)
+---
 function Proxy:set_hmac(key)
     self.hmac_key = key
     return self
 end
 
+---
 -- Creates, initializes the proxy connection.
+---
 function Proxy:start()
     local conn, smsg = connect(self.uri.loc, self.uri.port)
     config.LOG:debug('PROXY CONNECTION MSG', smsg)
@@ -71,7 +94,9 @@ function Proxy:start()
     return message
 end
 
+---
 -- Close proxy connection
+---
 function Proxy:close()
     if type(self.connection) == 'userdata' then
         self.connection:close()
@@ -79,7 +104,9 @@ function Proxy:close()
     end
 end
 
+---
 -- Calls the remote method
+---
 function Proxy:call(method, objectid, args, kwargs)
     if type(self.connection) ~= 'userdata' then
         -- connection closed ?

@@ -10,10 +10,16 @@ dofile(__PATH__ .. '/api-lua3.2/message.lua')
 dofile(__PATH__ .. '/api-lua3.2/classes.lua')
 dofile(__PATH__ .. '/api-lua3.2/utils/debug.lua')
 dofile(__PATH__ .. '/api-lua3.2/configuration.lua')
+dofile(__PATH__ .. '/api-lua3.2/exceptions.lua')
 
--- FrameBuitin(Proxy) - class
+---
+-- class FrameBuitin(devired of Proxy)
+---
 FlameBuiltin = settag({}, tag(Proxy))
 
+---
+-- Flame construtor
+---
 function FlameBuiltin:new(params)
     assert(params.flameserver['__class__'] == classes.PROXY, 'Invalid Flame!')
 
@@ -25,16 +31,33 @@ function FlameBuiltin:new(params)
 
     -- faz o objeto chamavel
     settagmethod(tag(self), 'function', function(self, ...)
-        local args = { self.builtin }
-        tinsert(args, 2, arg[1])
-        tinsert(args, 3, arg[2] or {})
-        return self:call('invokeBuiltin', self.uri.objectid, args, {})
+        local args = {
+            self.builtin,
+            arg[1],
+            arg[2] or {}
+        }
+        local obj = self:call('invokeBuiltin', self.uri.objectid, args, {})
+        if type(obj) == 'table' then
+            if obj['__exception__'] == 'true' then
+                local error = PYROException:new(
+                    obj['__class__'],
+                    obj['args'],
+                    obj['kwargs'],
+                    obj['attributes']['_pyroTraceback']
+                )
+                config.LOG:error('PROXY FRAME CALL', error:traceback_str())
+                return error
+            end
+        end
+        return obj
     end)
 
     return self
 end
 
+---
 -- FrameModule(class)
+---
 FlameModule = settag({}, newtag())
 
 settagmethod(tag(FlameModule), 'index', function(self, name)
@@ -44,12 +67,25 @@ settagmethod(tag(FlameModule), 'index', function(self, name)
         return rawgettable(FlameModule, name)
     else
         return function(...)
-            local args = {% self.module .. '.' .. % name}
-
-            args[2] = arg[1] or {}
-            args[3] = arg[2] or {}
-
-            return % self:call('invokeModule', % self.uri.objectid, args, {})
+            local args = {
+                %self.module .. '.' .. %name,
+                arg[1] or {},
+                arg[2] or {}
+            }
+            local obj = %self:call('invokeModule', % self.uri.objectid, args, {})
+            if type(obj) == 'table' then
+                if obj['__exception__'] == 'true' then
+                    local error = PYROException:new(
+                        obj['__class__'],
+                        obj['args'],
+                        obj['kwargs'],
+                        obj['attributes']['_pyroTraceback']
+                    )
+                    config.LOG:error('PROXY FRAME CALL', error:traceback_str())
+                    return error
+                end
+            end
+            return obj
         end
     end
 end)
