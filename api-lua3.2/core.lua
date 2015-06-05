@@ -97,6 +97,13 @@ function Proxy:close()
 end
 
 ---
+-- get atribute form remote
+---
+function Proxy:getattr(name)
+    return self:call("__getattr__", self.uri.objectid, {name}, {})
+end
+
+---
 -- Calls the remote method
 ---
 function Proxy:call(method, objectid, args, kwargs)
