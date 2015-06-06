@@ -22,7 +22,7 @@ FlameBuiltin = settag({}, tag(Proxy))
 settagmethod(tag(FlameBuiltin), 'function', function(self, ...)
     local params = {
         self.builtin,
-        arg[1],
+        arg[1] or {},
         arg[2] or {}
     }
     return self.proxy:call('invokeBuiltin', self.proxy.uri.objectid, params, {})
