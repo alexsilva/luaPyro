@@ -69,7 +69,7 @@ function FlameModule:new(obj, params)
 
     self.proxy = Proxy:new(PyroURI:new(obj.flameserver.state[1]), params)
     self.module = obj.module
-    self.attr = nil
+    self.attr = ""
 
     return self
 end
@@ -77,7 +77,11 @@ end
 function FlameModule:clone(name)
     local _self = settag({}, tag(FlameModule))
     _self.proxy = self.proxy
-    _self.module = self.module
+    if self.attr ~= "" then
+        _self.module = self.module.. '.' .. self.attr
+    else
+        _self.module = self.module
+    end
     _self.attr = name
     return _self
 end
