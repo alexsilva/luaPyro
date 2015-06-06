@@ -78,7 +78,8 @@ function Proxy:start()
         error('Proxy connection failed: ' .. smsg)
     end
     self.connection = conn
-    local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.hmac_key)
+    local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.params.hmac_key)
+    config.LOG:info(format('START %s:%s', self.uri.loc, self.uri.port), message.data)
 
     if self.params.load_metadata then
         self.metadata = self:call('get_metadata', config.DAEMON_NAME, {self.uri.objectid}, {})
