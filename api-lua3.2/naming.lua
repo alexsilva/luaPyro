@@ -6,13 +6,13 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-dofile(__PATH__ .. '/api-lua3.2/core.lua')
-dofile(__PATH__ .. '/api-lua3.2/constants.lua')
-dofile(__PATH__ .. '/api-lua3.2/pyrouri.lua')
-dofile(__PATH__ .. '/api-lua3.2/utils/debug.lua')
-dofile(__PATH__ .. '/api-lua3.2/configuration.lua')
-dofile(__PATH__ .. '/api-lua3.2/classes.lua')
-dofile(__PATH__ .. '/api-lua3.2/exceptions.lua')
+dofile(PYRO_PATH .. '/api-lua3.2/core.lua')
+dofile(PYRO_PATH .. '/api-lua3.2/constants.lua')
+dofile(PYRO_PATH .. '/api-lua3.2/pyrouri.lua')
+dofile(PYRO_PATH .. '/api-lua3.2/utils/debug.lua')
+dofile(PYRO_PATH .. '/api-lua3.2/configuration.lua')
+dofile(PYRO_PATH .. '/api-lua3.2/classes.lua')
+dofile(PYRO_PATH .. '/api-lua3.2/exceptions.lua')
 
 -- object (class)
 NameServer = settag({}, newtag())

@@ -6,7 +6,7 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-dofile(__PATH__ .. '/luabit/bit.lua')
+dofile(PYRO_PATH .. '/luabit/bit.lua')
 
 struct = {}
 

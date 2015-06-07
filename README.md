@@ -30,13 +30,13 @@ rpc.lua the script we have to initialize some global variables to work with the 
 ```lua
 
 -- Main directory of luaPyro library
-__PATH__ = '{somedir}/lib/luaPyro'
+PYRO_PATH = '{somedir}/lib/luaPyro'
 
 -- Sets the location of the bits files.
-SHA1_PATH = __PATH__..'/sha1'
+SHA1_PATH = PYRO_PATH..'/sha1'
 
 -- Api directory
-local apiLua_dir = __PATH__..'/api-lua3.2'
+local apiLua_dir = PYRO_PATH..'/api-lua3.2'
 
 -- Loads the file settings of pyro system.
 dofile(apiLua_dir..'/configuration.lua')

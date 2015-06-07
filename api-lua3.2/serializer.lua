@@ -6,8 +6,8 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-dofile(__PATH__ .. '/api-lua3.2/serializers/json.lua')
-dofile(__PATH__ .. '/api-lua3.2/configuration.lua')
+dofile(PYRO_PATH .. '/api-lua3.2/serializers/json.lua')
+dofile(PYRO_PATH .. '/api-lua3.2/configuration.lua')
 
 local TYPES = {
     ["serpent"] = {

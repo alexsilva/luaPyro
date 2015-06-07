@@ -8,18 +8,18 @@
 
 local package = '/api-lua3.2'
 
-dofile(__PATH__ .. package .. '/message.lua')
-dofile(__PATH__ .. package .. '/serializer.lua')
-dofile(__PATH__ .. package .. '/pyrouri.lua')
-dofile(__PATH__ .. package .. '/utils/debug.lua')
-dofile(__PATH__ .. package .. '/classes.lua')
-dofile(__PATH__ .. package .. '/configuration.lua')
-dofile(__PATH__ .. package .. '/exceptions.lua')
+dofile(PYRO_PATH .. package .. '/message.lua')
+dofile(PYRO_PATH .. package .. '/serializer.lua')
+dofile(PYRO_PATH .. package .. '/pyrouri.lua')
+dofile(PYRO_PATH .. package .. '/utils/debug.lua')
+dofile(PYRO_PATH .. package .. '/classes.lua')
+dofile(PYRO_PATH .. package .. '/configuration.lua')
+dofile(PYRO_PATH .. package .. '/exceptions.lua')
 
 -- object (class)
 Proxy = settag({}, newtag())
 
-dofile(__PATH__ .. package .. '/flame.lua')
+dofile(PYRO_PATH .. package .. '/flame.lua')
 
 ---
 -- Method of resolution of the proxy Proxy instances.
