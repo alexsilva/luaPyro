@@ -49,7 +49,7 @@ function NameServer:locateNS(host, port, broadcast, hmac_key)
 
         local uriString = PyroURI:format('PYRO', constants.NAMESERVER_NAME, host, port)
 
-        self.proxy = Proxy:new(uriString, self.params)
+        self.proxy = PYROProxy:new(uriString, self.params)
         self.proxy.ping()
 
         return self

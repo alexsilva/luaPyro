@@ -17,16 +17,16 @@ dofile(PYRO_PATH .. package .. '/configuration.lua')
 dofile(PYRO_PATH .. package .. '/exceptions.lua')
 
 -- object (class)
-Proxy = settag({}, newtag())
+PYROProxy = settag({}, newtag())
 
 dofile(PYRO_PATH .. package .. '/flame.lua')
 
 ---
--- Method of resolution of the proxy Proxy instances.
+-- Method of resolution of the proxy PYROProxy instances.
 ---
-settagmethod(tag(Proxy), 'index', function(self, name)
-    if rawgettable(Proxy, name) then
-        return rawgettable(Proxy, name)
+settagmethod(tag(PYROProxy), 'index', function(self, name)
+    if rawgettable(PYROProxy, name) then
+        return rawgettable(PYROProxy, name)
     elseif rawgettable(self, name) then
         return rawgettable(self, name)
     else
@@ -37,11 +37,11 @@ settagmethod(tag(Proxy), 'index', function(self, name)
 end)
 
 ---
--- Proxy constructor
+-- PYROProxy constructor
 ---
-function Proxy:new(uri, params)
+function PYROProxy:new(uri, params)
     if params == nil then params = {} end
-    local self = settag({}, tag(Proxy))
+    local self = settag({}, tag(PYROProxy))
 
     if tag(uri) == tag(PyroURI) then
         self.uri = uri
@@ -56,14 +56,14 @@ function Proxy:new(uri, params)
     return self
 end
 
-function Proxy:set_serializer(name)
+function PYROProxy:set_serializer(name)
     self.serializer:set_type(name)
 end
 
 ---
 -- key of hmac signature(if needed)
 ---
-function Proxy:set_hmac(key)
+function PYROProxy:set_hmac(key)
     self.params.hmac_key = key
     return self
 end
@@ -71,11 +71,11 @@ end
 ---
 -- Creates, initializes the proxy connection.
 ---
-function Proxy:start()
+function PYROProxy:start()
     local conn, smsg = connect(self.uri.loc, self.uri.port)
     if type(conn) ~= 'userdata' then
         config.LOG:critical(format('proxy connection %s:%s', self.uri.loc, self.uri.port), smsg)
-        error('Proxy connection failed: ' .. smsg)
+        error('PYROProxy connection failed: ' .. smsg)
     end
     self.connection = conn
     local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.params.hmac_key)
@@ -90,7 +90,7 @@ end
 ---
 -- Close proxy connection
 ---
-function Proxy:close()
+function PYROProxy:close()
     if type(self.connection) == 'userdata' then
         self.connection:close()
         self.connection = nil
@@ -100,14 +100,14 @@ end
 ---
 -- get atribute form remote
 ---
-function Proxy:getattr(name)
+function PYROProxy:getattr(name)
     return self:call("__getattr__", self.uri.objectid, {name}, {})
 end
 
 ---
 -- Calls the remote method
 ---
-function Proxy:call(method, objectid, args, kwargs)
+function PYROProxy:call(method, objectid, args, kwargs)
     if type(self.connection) ~= 'userdata' then
         -- connection closed ?
         self:start()

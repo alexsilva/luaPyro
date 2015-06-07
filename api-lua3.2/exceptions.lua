@@ -3,7 +3,7 @@
 ---
 PYROException = settag({}, newtag())
 
--- Method of resolution of the proxy Proxy instances.
+-- Method of resolution of the PYROException instances.
 settagmethod(tag(PYROException), 'index', function(self, name)
     if rawgettable(%PYROException, name) then
         return rawgettable(%PYROException, name)

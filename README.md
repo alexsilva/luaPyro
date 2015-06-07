@@ -55,7 +55,7 @@ dofile(apiLua_dir..'/constants.lua')
 dofile(apiLua_dir..'/core.lua')
 
 nameserver = NameServer:new(constants.FLAME_NAME)
-proxy = Proxy:new(self.nameserver:getURI())
+proxy = PYROProxy:new(self.nameserver:getURI())
 
 -- Once configured simply you use the created proxy.
 local os = proxy.module{'os'}

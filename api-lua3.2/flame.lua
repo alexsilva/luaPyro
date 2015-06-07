@@ -15,9 +15,9 @@ dofile(PYRO_PATH .. '/api-lua3.2/pyrouri.lua')
 
 
 ---
--- class FrameBuitin(devired of Proxy)
+-- class FrameBuitin(devired of PYROProxy)
 ---
-FlameBuiltin = settag({}, tag(Proxy))
+FlameBuiltin = settag({}, tag(PYROProxy))
 
 settagmethod(tag(FlameBuiltin), 'function', function(self, ...)
     local params = {
@@ -34,7 +34,7 @@ end)
 function FlameBuiltin:new(obj, params)
     local self = settag({}, tag(FlameBuiltin))
 
-    self.proxy = Proxy:new(PyroURI:new(obj.flameserver.state[1]), params)
+    self.proxy = PYROProxy:new(PyroURI:new(obj.flameserver.state[1]), params)
     self.builtin = obj.builtin
 
     return self
@@ -67,7 +67,7 @@ end)
 function FlameModule:new(obj, params)
     local self = settag({}, tag(FlameModule))
 
-    self.proxy = Proxy:new(PyroURI:new(obj.flameserver.state[1]), params)
+    self.proxy = PYROProxy:new(PyroURI:new(obj.flameserver.state[1]), params)
     self.module = obj.module
     self.attr = ""
 
