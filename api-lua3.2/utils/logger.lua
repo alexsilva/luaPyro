@@ -53,7 +53,7 @@ function Log:error(str, obj)
 end
 
 function Log:critical(str, obj)
-    self:write('CRITIAL', str, obj)
+    self:write('CRITICAL', str, obj)
 end
 
 function Log:close()
