@@ -1,6 +1,5 @@
-# LuaPyro - Python Remote Objects
-  This software is distributed under the terms written in the file `LICENSE`.
-
+# LuaPyro - It `Lua 3.2` client to the library python [Pyro4](https://github.com/irmen/Pyro4).
+This software is distributed under the terms written in the file `LICENSE`.
 
 ## Setup luaPyro
 
