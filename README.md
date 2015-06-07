@@ -59,6 +59,6 @@ proxy = Proxy:new(self.nameserver:getURI())
 
 -- Once configured simply you use the created proxy.
 
-proxy.module{'os'}
-proxy.getcwd()
+local os = proxy.module{'os'}
+os.getcwd()  -- current work dir
 ```
