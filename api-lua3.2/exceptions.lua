@@ -1,19 +1,19 @@
 ---
 -- Class generic errors
 ---
-PYROException = settag({}, newtag())
+PyroException = settag({}, newtag())
 
--- Method of resolution of the PYROException instances.
-settagmethod(tag(PYROException), 'index', function(self, name)
-    if rawgettable(%PYROException, name) then
-        return rawgettable(%PYROException, name)
+-- Method of resolution of the PyroException instances.
+settagmethod(tag(PyroException), 'index', function(self, name)
+    if rawgettable(%PyroException, name) then
+        return rawgettable(%PyroException, name)
     else
         return rawgettable(self, name)
     end
 end)
 
-function PYROException:new(class, args, kwargs, traceback)
-    local self = settag({}, tag(%PYROException))
+function PyroException:new(class, args, kwargs, traceback)
+    local self = settag({}, tag(%PyroException))
 
     self.class = class
     self.args = args
@@ -23,7 +23,7 @@ function PYROException:new(class, args, kwargs, traceback)
     return self
 end
 
-function PYROException:traceback_str()
+function PyroException:traceback_str()
     local d = {msg = self.class .. "\n"}
     foreachi(self.traceback, function(i, v)
         %d.msg = %d.msg .. v

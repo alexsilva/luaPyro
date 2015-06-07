@@ -15,28 +15,28 @@ dofile(PYRO_PATH .. '/api-lua3.2/classes.lua')
 dofile(PYRO_PATH .. '/api-lua3.2/exceptions.lua')
 
 -- object (class)
-NameServer = settag({}, newtag())
+PyroNameServer = settag({}, newtag())
 
 -- Method of resolution of the Message object instances
-settagmethod(tag(NameServer), 'index', function(self, name)
-    if rawgettable(NameServer, name) then
-        return rawgettable(NameServer, name)
+settagmethod(tag(PyroNameServer), 'index', function(self, name)
+    if rawgettable(PyroNameServer, name) then
+        return rawgettable(PyroNameServer, name)
     else
         return rawgettable(self, name)
     end
 end)
 
--- NameServer constructor
-function NameServer:new(name, params)
-    return settag({name = name, params = params or {}}, tag(NameServer))
+-- PyroNameServer constructor
+function PyroNameServer:new(name, params)
+    return settag({name = name, params = params or {}}, tag(PyroNameServer))
 end
 
 -- key of hmac signature(if needed)
-function NameServer:set_hmac(hmac_key)
+function PyroNameServer:set_hmac(hmac_key)
     self.params.hmac_key = hmac_key
 end
 
-function NameServer:locateNS(host, port, broadcast, hmac_key)
+function PyroNameServer:locateNS(host, port, broadcast, hmac_key)
     if host == nil then
         local host = config.NS_HOST
         if not port then
@@ -49,19 +49,19 @@ function NameServer:locateNS(host, port, broadcast, hmac_key)
 
         local uriString = PyroURI:format('PYRO', constants.NAMESERVER_NAME, host, port)
 
-        self.proxy = PYROProxy:new(uriString, self.params)
+        self.proxy = PyroProxy:new(uriString, self.params)
         self.proxy.ping()
 
         return self
     end
 end
 
-function NameServer:getURI(name)
+function PyroNameServer:getURI(name)
     if self.proxy == nil then
         local ns = self:locateNS() -- proxy set
     end
     local obj = self.proxy.lookup({name or self.name})
-    if type(obj) == 'table' and tag(PYROException) ~= tag(obj) and obj['__class__'] == classes.URI then
+    if type(obj) == 'table' and tag(PyroException) ~= tag(obj) and obj['__class__'] == classes.URI then
         local protocol = obj.state[1]
         local object = obj.state[2]
         local sockname = obj.state[3]

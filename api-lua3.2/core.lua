@@ -17,16 +17,16 @@ dofile(PYRO_PATH .. package .. '/configuration.lua')
 dofile(PYRO_PATH .. package .. '/exceptions.lua')
 
 -- object (class)
-PYROProxy = settag({}, newtag())
+PyroProxy = settag({}, newtag())
 
 dofile(PYRO_PATH .. package .. '/flame.lua')
 
 ---
--- Method of resolution of the proxy PYROProxy instances.
+-- Method of resolution of the proxy PyroProxy instances.
 ---
-settagmethod(tag(PYROProxy), 'index', function(self, name)
-    if rawgettable(PYROProxy, name) then
-        return rawgettable(PYROProxy, name)
+settagmethod(tag(PyroProxy), 'index', function(self, name)
+    if rawgettable(PyroProxy, name) then
+        return rawgettable(PyroProxy, name)
     elseif rawgettable(self, name) then
         return rawgettable(self, name)
     else
@@ -37,11 +37,11 @@ settagmethod(tag(PYROProxy), 'index', function(self, name)
 end)
 
 ---
--- PYROProxy constructor
+-- PyroProxy constructor
 ---
-function PYROProxy:new(uri, params)
+function PyroProxy:new(uri, params)
     if params == nil then params = {} end
-    local self = settag({}, tag(PYROProxy))
+    local self = settag({}, tag(PyroProxy))
 
     if tag(uri) == tag(PyroURI) then
         self.uri = uri
@@ -56,14 +56,14 @@ function PYROProxy:new(uri, params)
     return self
 end
 
-function PYROProxy:set_serializer(name)
+function PyroProxy:set_serializer(name)
     self.serializer:set_type(name)
 end
 
 ---
 -- key of hmac signature(if needed)
 ---
-function PYROProxy:set_hmac(key)
+function PyroProxy:set_hmac(key)
     self.params.hmac_key = key
     return self
 end
@@ -71,11 +71,11 @@ end
 ---
 -- Creates, initializes the proxy connection.
 ---
-function PYROProxy:start()
+function PyroProxy:start()
     local conn, smsg = connect(self.uri.loc, self.uri.port)
     if type(conn) ~= 'userdata' then
         config.LOG:critical(format('proxy connection %s:%s', self.uri.loc, self.uri.port), smsg)
-        error('PYROProxy connection failed: ' .. smsg)
+        error('PyroProxy connection failed: ' .. smsg)
     end
     self.connection = conn
     local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.params.hmac_key)
@@ -90,7 +90,7 @@ end
 ---
 -- Close proxy connection
 ---
-function PYROProxy:close()
+function PyroProxy:close()
     if type(self.connection) == 'userdata' then
         self.connection:close()
         self.connection = nil
@@ -100,14 +100,14 @@ end
 ---
 -- get atribute form remote
 ---
-function PYROProxy:getattr(name)
+function PyroProxy:getattr(name)
     return self:call("__getattr__", self.uri.objectid, {name}, {})
 end
 
 ---
 -- Calls the remote method
 ---
-function PYROProxy:call(method, objectid, args, kwargs)
+function PyroProxy:call(method, objectid, args, kwargs)
     if type(self.connection) ~= 'userdata' then
         -- connection closed ?
         self:start()
@@ -142,7 +142,7 @@ function PYROProxy:call(method, objectid, args, kwargs)
                 return FlameModule:new(obj, self.params)
             end
         elseif obj['__exception__'] == 'true' then -- Exception objects
-            local error = PYROException:new(
+            local error = PyroException:new(
                 obj['__class__'],
                 obj['args'],
                 obj['kwargs'],
