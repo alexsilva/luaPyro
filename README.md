@@ -47,8 +47,8 @@ config.NS_PORT = 9090
 -- Loads the log script.
 local logger = dofile(apiLua_dir..'/utils/logger.lua')
 
--- Sets the location of the log file.
-config.LOG = {somedir}/lib/logs/rpc.log')
+-- Sets the default log object (may be changed to another if necessary).
+config.LOG = logger.Log:new('rpc.log')
 
 dofile(apiLua_dir..'/naming.lua')
 dofile(apiLua_dir..'/constants.lua')
@@ -58,7 +58,6 @@ nameserver = NameServer:new(constants.FLAME_NAME)
 proxy = Proxy:new(self.nameserver:getURI())
 
 -- Once configured simply you use the created proxy.
-
 local os = proxy.module{'os'}
 os.getcwd()  -- current work dir
 ```
