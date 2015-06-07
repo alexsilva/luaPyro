@@ -29,6 +29,11 @@ rpc.lua the script we have to initialize some global variables to work with the 
 
 ```lua
 
+-- One of the main dependencies of luaPyro, is a socket library that provides a `connect` method, 
+-- through which will be given the `host` and the server `port`.
+
+loadlib('sock')
+
 -- Main directory of luaPyro library
 PYRO_PATH = '{somedir}/lib/luaPyro'
 
