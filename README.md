@@ -6,8 +6,8 @@
 
 
 The project has dependencies with sub-modules, so before you use it you need to build it.
-For this it contains the script builder.py. This script exports only the necessary script
-to the location indicated by parameter --buildpath. So:
+For this it contains the script `builder.py`. This script exports only the necessary script
+to the location indicated by parameter `--buildpath`. So:
 
 
 python builder.py --buildpath={somedir}/lib/luaPyro
@@ -15,19 +15,21 @@ python builder.py --buildpath={somedir}/lib/luaPyro
 
 Create a package with this structure inside lib dir:
 
-
 luaPyro
+```
 --- api-lua3.2
 --- luabit
 --- sha1
+```
 
-
-Considering that we are in the lib directory as working directory. We have to create an
+Considering that we are in the `lib` directory as working directory. We have to create an
 initialization lua script (configuration). I will call this script rpc.lua.
 rpc.lua the script we have to initialize some global variables to work with the package luaPyro.
 
 
 ```lua
+
+-- Main directory of luaPyro library
 __PATH__ = '{somedir}/lib/luaPyro'
 
 -- Sets the location of the bits files.
@@ -52,11 +54,10 @@ dofile(apiLua_dir..'/naming.lua')
 dofile(apiLua_dir..'/constants.lua')
 dofile(apiLua_dir..'/core.lua')
 
-
-params['hmac_key'] = PYTHON_RPC_KEY
-
 nameserver = NameServer:new(constants.FLAME_NAME)
 proxy = Proxy:new(self.nameserver:getURI())
+
+-- Once configured simply you use the created proxy.
 
 proxy.module{'os'}
 proxy.getcwd()
