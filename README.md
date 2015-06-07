@@ -1,6 +1,5 @@
-# LuaPyro - Python Remote Objects
-  This software is distributed under the terms written in the file `LICENSE`.
-
+# LuaPyro - It `Lua 3.2` client to the library python [Pyro4](https://github.com/irmen/Pyro4).
+This software is distributed under the terms written in the file `LICENSE`.
 
 ## Setup luaPyro
 
@@ -29,6 +28,11 @@ rpc.lua the script we have to initialize some global variables to work with the 
 
 ```lua
 
+-- One of the main dependencies of luaPyro, is a socket library that provides 
+-- a `connect` method, through which will be given the `host` and the server `port`.
+
+loadlib('sock')
+
 -- Main directory of luaPyro library
 PYRO_PATH = '{somedir}/lib/luaPyro'
 
@@ -54,10 +58,10 @@ dofile(apiLua_dir..'/naming.lua')
 dofile(apiLua_dir..'/constants.lua')
 dofile(apiLua_dir..'/core.lua')
 
-nameserver = NameServer:new(constants.FLAME_NAME)
-proxy = PYROProxy:new(self.nameserver:getURI())
+local nameserver = NameServer:new(constants.FLAME_NAME)
+local proxy = Proxy:new(self.nameserver:getURI())
 
 -- Once configured simply you use the created proxy.
 local os = proxy.module{'os'}
-os.getcwd()  -- current work dir
+print(os.getcwd())  -- current work dir
 ```
