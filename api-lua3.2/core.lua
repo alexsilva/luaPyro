@@ -74,12 +74,12 @@ end
 function Proxy:start()
     local conn, smsg = connect(self.uri.loc, self.uri.port)
     if type(conn) ~= 'userdata' then
-        config.LOG:critical(format('PROXY CONNECTION %s:%s', self.uri.loc, self.uri.port), smsg)
+        config.LOG:critical(format('proxy connection %s:%s', self.uri.loc, self.uri.port), smsg)
         error('Proxy connection failed: ' .. smsg)
     end
     self.connection = conn
     local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.params.hmac_key)
-    config.LOG:info(format('START %s:%s', self.uri.loc, self.uri.port), message.data)
+    config.LOG:info(format('start connection %s:%s', self.uri.loc, self.uri.port), message.data)
 
     if self.params.load_metadata then
         self.metadata = self:call('get_metadata', config.DAEMON_NAME, {self.uri.objectid}, {})
@@ -119,7 +119,7 @@ function Proxy:call(method, objectid, args, kwargs)
         kwargs = kwargs
     }
     local data = self.serializer:dumps(params)
-    config.LOG:info(format('[%s] SENT JSON', method), data)
+    config.LOG:info(format('[%s] sent json', method), data)
 
     -- msg_type, serializer_id, seq, data, flags, annotations, hmac_key
     local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(), {
@@ -148,10 +148,10 @@ function Proxy:call(method, objectid, args, kwargs)
                 obj['kwargs'],
                 obj['attributes']['_pyroTraceback']
             )
-            config.LOG:error('PROXY CALL', error:traceback_str())
+            config.LOG:error('proxy call', error:traceback_str())
             return error
         end
     end
-    config.LOG:info(format('[%s] RECEIVED JSON', method), message.data)
+    config.LOG:info(format('[%s] received json', method), message.data)
     return obj
 end

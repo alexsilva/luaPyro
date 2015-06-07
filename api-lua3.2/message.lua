@@ -118,7 +118,7 @@ function Message:_check(message, required_msgType)
             return true
         end
     end)
-    config.LOG:debug('MESSAGE IS VALID', valid)
+    config.LOG:info('is valid message', valid)
     return valid
 end
 

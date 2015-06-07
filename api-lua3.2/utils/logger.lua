@@ -19,7 +19,7 @@ end)
 
 function Log:new(filepath)
 
-    local self = settag({fmt="[%s %s] %s ::: %s"}, tag(%Log))
+    local self = settag({fmt="[%5s %s] %s ::: %s"}, tag(%Log))
     self.hnd = openfile(filepath, "a+")
 
     return self
