@@ -51,6 +51,7 @@ function PyroProxy:new(uri, params)
 
     self.serializer = Serializer:new()
     self.params = params
+    self.params.seq = params.seq or 0
     self.metadata = {}
 
     return self
@@ -127,12 +128,16 @@ function PyroProxy:call(method, objectid, args, kwargs)
             annotations = {},
             flag = 0,
             data = data,
-            seq = 0})
+            seq = self.params.seq})
     self.connection:send(message:to_bytes())
 
     message = message:recv(self.connection, {Message.MSG_RESULT}, self.params.hmac_key)
 
     local obj = self.serializer:loads(message.data)
+    local sequence = message.seq == self.params.seq + 1
+
+    config.LOG:info('seq check', sequence)
+    assert (sequence, 'invalid sequence!')
 
     if type(obj) == 'table' then
         if obj['flameserver'] then -- FLAME objects
