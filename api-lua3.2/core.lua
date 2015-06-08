@@ -135,7 +135,7 @@ function PyroProxy:call(method, objectid, args, kwargs)
 
     local obj = self.serializer:loads(message.data)
 
-    config.LOG:info(format('seq:%s, checksum, msgType check', message.seq),
+    config.LOG:info(format('[%s] seq:%s, checksum, msgType check', method, message.seq),
         tostring(message.seq == self.params.seq + 1)..","..
         tostring(message.checksum == message.checksum_calc)..","..
         tostring(message.required_msgType_valid))
