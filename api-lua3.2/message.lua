@@ -112,13 +112,12 @@ function Message:hmac(key)
 end
 
 -- Checks whether the received message is valid type.
-function Message:_check(message, required_msgType)
+function Message:checkMsgType(message, required_msgType)
     local valid = foreachi((required_msgType or {}), function(index, msg_type)
         if msg_type == %message.msg_type then
-            return true
+            return 1
         end
     end)
-    config.LOG:info('is valid message', valid)
     return valid
 end
 
@@ -146,7 +145,7 @@ function Message:recv(connection, required_msg_types, hmac_key)
     end
     -- read data
     msg.data = connection:receive(msg.data_size)
-    self:_check(msg, required_msg_types)
+    msg.required_msgType_valid = self:checkMsgType(msg, required_msg_types)
     if type(hmac_key) == 'string' and msg.annotations['HMAC'] ~= msg:hmac(hmac_key) then
         error('[1] Security error!')
     end

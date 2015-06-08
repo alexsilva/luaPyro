@@ -134,10 +134,17 @@ function PyroProxy:call(method, objectid, args, kwargs)
     message = message:recv(self.connection, {Message.MSG_RESULT}, self.params.hmac_key)
 
     local obj = self.serializer:loads(message.data)
-    local sequence = message.seq == self.params.seq + 1
 
-    config.LOG:info('seq check', sequence)
-    assert (sequence, 'invalid sequence!')
+    config.LOG:info(format('seq:%s, checksum, msgType check', message.seq),
+        tostring(message.seq == self.params.seq + 1)..","..
+        tostring(message.checksum == message.checksum_calc)..","..
+        tostring(message.required_msgType_valid))
+
+    assert(message.seq == self.params.seq + 1, 'invalid sequence!')
+    assert(message.checksum == message.checksum_calc, 'checksum no match!')
+    assert(message.required_msgType_valid, 'message type no match!')
+
+    self.params.seq = message.seq
 
     if type(obj) == 'table' then
         if obj['flameserver'] then -- FLAME objects
