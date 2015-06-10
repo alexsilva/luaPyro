@@ -147,7 +147,10 @@ function Message:recv(connection, required_msg_types, hmac_key)
     msg.data = connection:receive(msg.data_size)
     msg.required_msgType_valid = self:checkMsgType(msg, required_msg_types)
     if type(hmac_key) == 'string' and msg.annotations['HMAC'] ~= msg:hmac(hmac_key) then
-        error('[1] Security error!')
+        local msg_log_id = '[150]'
+        local msg_log = 'Security error, hmac key no match!'
+        config.LOG:critical(msg_log_id, msg_log)
+        error(msg_log_id..' '..msg_log)
     end
     return msg
 end
