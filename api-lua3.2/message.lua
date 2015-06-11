@@ -33,8 +33,12 @@ Message.SERIALIZER_MARSHAL = 3
 Message.SERIALIZER_PICKLE = 4
 
 -- Method of resolution of the Message object instances
-settagmethod(tag(Message), 'index', function(tbl, name)
-    return rawgettable(Message, name)
+settagmethod(tag(Message), 'index', function(self, name)
+    if rawgettable(Message, name) then
+        return rawgettable(Message, name)
+    else
+        rawgettable(self, name)
+    end
 end)
 
 --- Message constructor (params: seq, data, flags, annotations, hmac_key)
@@ -104,11 +108,13 @@ end
 
 -- returns the hmac of the data and the annotation chunk values (except HMAC chunk itself)
 function Message:hmac(key)
-    local mac = sha1.hmac_binary(key, self.data)
-    foreach(self.annotations, function(index, value)
-        -- implement this!
+    local data = {value = self.data}
+    foreach(self.annotations, function(name, value)
+        if name ~= 'HMAC' then
+            %data.value = %data.value..value
+        end
     end)
-    return mac
+    return sha1.hmac_binary(key, data.value)
 end
 
 -- Checks whether the received message is valid type.
@@ -131,16 +137,17 @@ function Message:recv(connection, required_msg_types, hmac_key)
     -- read annotation chunks
     if msg.annotations_size > 0 then
         msg.annotations_data = connection:receive(msg.annotations_size)
-        local i = 1
-        while i < msg.annotations_size do
-            local key = strsub(msg.annotations_data, i, i + 3)
+        local index = 1
+        while index < msg.annotations_size do
+            local key = strsub(msg.annotations_data, index, index + 3)
             -- annotation value size
             local length = bit.bor(
-                bit.blshift(strbyte(msg.annotations_data, i + 4), 8),
-                strbyte(msg.annotations_data, i + 5))
-            local annotations_bytes = strsub(msg.annotations_data, i + 6, i + 6 + length)
+                bit.blshift(strbyte(msg.annotations_data, index + 4), 8),
+                strbyte(msg.annotations_data, index + 5)
+            )
+            local annotations_bytes = strsub(msg.annotations_data, index + 6, index + 5 + length)
             msg.annotations[key] = annotations_bytes
-            i = i + 6 + length
+            index = index + length + 6
         end
     end
     -- read data
