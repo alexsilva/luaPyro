@@ -125,7 +125,7 @@ function PyroProxy:call(method, objectid, args, kwargs)
     -- msg_type, serializer_id, seq, data, flags, annotations, hmac_key
     local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(), {
             hmac_key = self.params.hmac_key,
-            annotations = {},
+            -- Todo: check this annotations = {['CORR'] ='da82ea700fdd11e5'},
             flag = 0,
             data = data,
             seq = self.params.seq})
