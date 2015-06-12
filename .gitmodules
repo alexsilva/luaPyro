@@ -4,3 +4,6 @@
 [submodule "sha1"]
 	path = sha1
 	url = https://github.com/alexsilva/sha1.lua-fallback.git
+[submodule "lz-string-lua"]
+	path = lz-string-lua
+	url = git@github.com:alexsilva/lz-string-lua.git
