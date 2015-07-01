@@ -5,6 +5,9 @@
 -- Time: 04:11
 -- To change this template use File | Settings | File Templates.
 --
+ROOT_DIR = PYRO_PATH .. '/lz-string-lua'
+
+dofile(PYRO_PATH .. 'lzstring.lua')
 
 local package = '/api-lua3.2'
 
@@ -126,7 +129,7 @@ function PyroProxy:call(method, objectid, args, kwargs)
     local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(), {
             hmac_key = self.params.hmac_key,
             -- Todo: check this annotations = {['CORR'] ='da82ea700fdd11e5'},
-            flag = 0,
+            flag = Message.FLAGS_COMPRESSED,
             data = data,
             seq = self.params.seq})
     self.connection:send(message:to_bytes())
