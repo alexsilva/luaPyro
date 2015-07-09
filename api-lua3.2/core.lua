@@ -15,6 +15,7 @@ dofile(PYRO_PATH .. package .. '/utils/debug.lua')
 dofile(PYRO_PATH .. package .. '/classes.lua')
 dofile(PYRO_PATH .. package .. '/configuration.lua')
 dofile(PYRO_PATH .. package .. '/exceptions.lua')
+dofile(PYRO_PATH .. '/luabit/bit.lua')
 
 -- object (class)
 PyroProxy = settag({}, newtag())
@@ -133,6 +134,11 @@ function PyroProxy:call(method, objectid, args, kwargs)
 
     message = message:recv(self.connection, {Message.MSG_RESULT}, self.params.hmac_key)
 
+    if bit.band(message.flags or 0, Message.FLAGS_COMPRESSED) == Message.FLAGS_COMPRESSED then
+        message.data = decompress_from_base64(message.data) -- uncompress
+    end
+
+    config.LOG:info(format('[%s] received json', method), message.data)
     local obj = self.serializer:loads(message.data)
 
     config.LOG:info(format('[%s] seq:%s, checksum, msgType check', method, message.seq),
@@ -153,7 +159,7 @@ function PyroProxy:call(method, objectid, args, kwargs)
             elseif obj["module"] then
                 return FlameModule:new(obj, self.params)
             end
-        elseif obj['__exception__'] == 'true' then -- Exception objects
+        elseif obj['__exception__'] then -- Exception objects
             local error = PyroException:new(
                 obj['__class__'],
                 obj['args'],
@@ -164,6 +170,5 @@ function PyroProxy:call(method, objectid, args, kwargs)
             return error
         end
     end
-    config.LOG:info(format('[%s] received json', method), message.data)
     return obj
 end
