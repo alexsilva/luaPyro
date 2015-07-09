@@ -15,7 +15,6 @@ dofile(PYRO_PATH .. package .. '/utils/debug.lua')
 dofile(PYRO_PATH .. package .. '/classes.lua')
 dofile(PYRO_PATH .. package .. '/configuration.lua')
 dofile(PYRO_PATH .. package .. '/exceptions.lua')
-dofile(PYRO_PATH .. '/luabit/bit.lua')
 
 -- object (class)
 PyroProxy = settag({}, newtag())
@@ -134,7 +133,7 @@ function PyroProxy:call(method, objectid, args, kwargs)
 
     message = message:recv(self.connection, {Message.MSG_RESULT}, self.params.hmac_key)
 
-    if bit.band(message.flags or 0, Message.FLAGS_COMPRESSED) == Message.FLAGS_COMPRESSED then
+    if band(message.flags or 0, Message.FLAGS_COMPRESSED) == Message.FLAGS_COMPRESSED then
         message.data = decompress_from_base64(message.data) -- uncompress
     end
 

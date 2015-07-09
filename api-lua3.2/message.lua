@@ -6,7 +6,6 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-dofile(PYRO_PATH .. '/luabit/bit.lua')
 dofile(PYRO_PATH .. '/api-lua3.2/utils/struct.lua')
 dofile(PYRO_PATH .. '/api-lua3.2/configuration.lua')
 dofile(PYRO_PATH .. '/sha1/sha1.lua')
@@ -23,10 +22,10 @@ Message.MSG_CONNECTFAIL = 3
 Message.MSG_INVOKE = 4
 Message.MSG_RESULT = 5
 Message.MSG_PING = 6
-Message.FLAGS_EXCEPTION = bit.blshift(1, 0)
-Message.FLAGS_COMPRESSED = bit.blshift(1, 1)
-Message.FLAGS_ONEWAY = bit.blshift(1, 2)
-Message.FLAGS_BATCH = bit.blshift(1, 3)
+Message.FLAGS_EXCEPTION = blshift(1, 0)
+Message.FLAGS_COMPRESSED = blshift(1, 1)
+Message.FLAGS_ONEWAY = blshift(1, 2)
+Message.FLAGS_BATCH = blshift(1, 3)
 Message.SERIALIZER_SERPENT = 1
 Message.SERIALIZER_JSON = 2
 Message.SERIALIZER_MARSHAL = 3
@@ -141,8 +140,8 @@ function Message:recv(connection, required_msg_types, hmac_key)
         while index < msg.annotations_size do
             local key = strsub(msg.annotations_data, index, index + 3)
             -- annotation value size
-            local length = bit.bor(
-                bit.blshift(strbyte(msg.annotations_data, index + 4), 8),
+            local length = bor(
+                blshift(strbyte(msg.annotations_data, index + 4), 8),
                 strbyte(msg.annotations_data, index + 5)
             )
             local annotations_bytes = strsub(msg.annotations_data, index + 6, index + 5 + length)
