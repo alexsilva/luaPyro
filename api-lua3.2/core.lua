@@ -134,7 +134,7 @@ function PyroProxy:call(method, objectid, args, kwargs)
     message = message:recv(self.connection, {Message.MSG_RESULT}, self.params.hmac_key)
 
     if band(message.flags or 0, Message.FLAGS_COMPRESSED) == Message.FLAGS_COMPRESSED then
-        message.data = decompress_from_base64(message.data) -- uncompress
+        message.data = zlib_decompress(message.data) -- uncompress
     end
 
     config.LOG:info(format('[%s] received json', method), message.data)
