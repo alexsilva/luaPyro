@@ -51,7 +51,15 @@ function Message:new(msg_type, serializer_id, params)
     self.flags = params.flags or 0
     self.seq = params.seq or 0
 
-    self.data = params.data or ""
+    local data = params.data or ''
+    self.compressed = params.compressed
+
+    if self.compressed == 1 then
+        self.data = self:get_compressed(data)
+    else
+        self.data = data
+    end
+
     self.data_size = strlen(self.data)
 
     self.annotations = params.annotations or {}
@@ -68,6 +76,14 @@ function Message:new(msg_type, serializer_id, params)
     end)
     self.annotations_size = annotation.size
     return self
+end
+
+----
+-- compresss before send (check FLAGS_COMPRESSED)
+----
+function Message:get_compressed(data)
+    self.flags = bor(self.flags, self.FLAGS_COMPRESSED)
+    return zlib_compress(data, Z_BEST_COMPRESSION)
 end
 
 function Message:from_header(headers_data)

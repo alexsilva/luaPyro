@@ -126,11 +126,11 @@ function PyroProxy:call(method, objectid, args, kwargs)
     local message = Message:new(Message.MSG_INVOKE, self.serializer:getid(), {
             hmac_key = self.params.hmac_key,
             -- Todo: check this annotations = {['CORR'] ='da82ea700fdd11e5'},
-            flag = 0,
+            compressed = self.params.compressed or 1,
             data = data,
             seq = self.params.seq})
-    self.connection:send(message:to_bytes())
 
+    self.connection:send(message:to_bytes())
     message = message:recv(self.connection, {Message.MSG_RESULT}, self.params.hmac_key)
 
     config.LOG:info(format('[%s] received json', method), message.data)
