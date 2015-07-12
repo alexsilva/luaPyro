@@ -158,6 +158,10 @@ function Message:recv(connection, required_msg_types, hmac_key)
         config.LOG:critical(msg_log_id, msg_log)
         error(msg_log_id..' '..msg_log)
     end
+    -- after hmac check!
+    if band(msg.flags or 0, Message.FLAGS_COMPRESSED) == Message.FLAGS_COMPRESSED then
+        msg.data = zlib_decompress(msg.data) -- uncompress
+    end
     return msg
 end
 
