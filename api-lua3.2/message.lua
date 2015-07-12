@@ -130,39 +130,39 @@ end
 -- Accepts the given message types (None=any, or pass a sequence).
 -- Also reads annotation chunks and the actual payload data.
 -- Validates a HMAC chunk if present.
-function Message:recv(connection, required_msg_types, hmac_key)
+function Message:recv(connection, required_msgTypes, hmac_key)
     local header_data = connection:receive(self.HEADER_SIZE)
-    local msg = self:from_header(header_data)
+    local message = self:from_header(header_data)
     -- read annotation chunks
-    if msg.annotations_size > 0 then
-        msg.annotations_data = connection:receive(msg.annotations_size)
+    if message.annotations_size > 0 then
+        message.annotations_data = connection:receive(message.annotations_size)
         local index = 1
-        while index < msg.annotations_size do
-            local key = strsub(msg.annotations_data, index, index + 3)
+        while index < message.annotations_size do
+            local key = strsub(message.annotations_data, index, index + 3)
             -- annotation value size
             local length = bor(
-                blshift(strbyte(msg.annotations_data, index + 4), 8),
-                strbyte(msg.annotations_data, index + 5)
+                blshift(strbyte(message.annotations_data, index + 4), 8),
+                strbyte(message.annotations_data, index + 5)
             )
-            local annotations_bytes = strsub(msg.annotations_data, index + 6, index + 5 + length)
-            msg.annotations[key] = annotations_bytes
+            local annotations_bytes = strsub(message.annotations_data, index + 6, index + 5 + length)
+            message.annotations[key] = annotations_bytes
             index = index + length + 6
         end
     end
     -- read data
-    msg.data = connection:receive(msg.data_size)
-    msg.required_msgType_valid = self:checkMsgType(msg, required_msg_types)
-    if type(hmac_key) == 'string' and msg.annotations['HMAC'] ~= msg:hmac(hmac_key) then
+    message.data = connection:receive(message.data_size)
+    message.required_msgType_valid = self:checkMsgType(message, required_msgTypes)
+    if type(hmac_key) == 'string' and message.annotations['HMAC'] ~= message:hmac(hmac_key) then
         local msg_log_id = '[150]'
         local msg_log = 'Security error, hmac key no match!'
         config.LOG:critical(msg_log_id, msg_log)
         error(msg_log_id..' '..msg_log)
     end
     -- after hmac check!
-    if band(msg.flags or 0, Message.FLAGS_COMPRESSED) == Message.FLAGS_COMPRESSED then
-        msg.data = zlib_decompress(msg.data) -- uncompress
+    if band(message.flags or 0, Message.FLAGS_COMPRESSED) == Message.FLAGS_COMPRESSED then
+        message.data = zlib_decompress(message.data) -- uncompress
     end
-    return msg
+    return message
 end
 
 function Message:to_bytes()
