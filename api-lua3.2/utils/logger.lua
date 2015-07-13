@@ -18,11 +18,7 @@ settagmethod(tag(Log), "index", function(tbl, name)
 end)
 
 function Log:new(filepath)
-
-    local self = settag({fmt="[%5s %s] %s ::: %s"}, tag(%Log))
-    self.hnd = openfile(filepath, "a+")
-
-    return self
+    return settag({fmt="[%5s %s] %s ::: %s", filepath=filepath}, tag(%Log))
 end
 
 function Log:format(level, info, obj)
@@ -34,9 +30,12 @@ function Log:write_handle(self, level, info, obj)
 end
 
 function Log:write(level, info, obj)
-    assert(self.hnd ~= nil and self.hnd ~= -1, 'Log file was not opened!')
     if not self:write_handle(level, info, obj) then
-        write(self.hnd, self:format(level, info, obj).."\n")
+        local hnd = openfile(self.filepath, "a+")  -- shared resource: must be closed!
+        if hnd ~= nil and hnd ~= -1 then
+            write(hnd, self:format(level, info, obj).."\n")
+            closefile(hnd)
+        end
     end
 end
 
@@ -54,10 +53,6 @@ end
 
 function Log:critical(str, obj)
     self:write('CRITICAL', str, obj)
-end
-
-function Log:close()
-    closefile(self.hnd)
 end
 
 return {
