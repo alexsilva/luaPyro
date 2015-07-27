@@ -18,7 +18,7 @@ constants = {
     -- standard name for Flame server
     FLAME_NAME = "Pyro.Flame",
     -- wire protocol version. Note that if this gets updated, Pyrolite might need an update too.
-    PROTOCOL_VERSION = 47,
+    PROTOCOL_VERSION = 48,
     -- version of the client
     LIBRABRY_VERSION = '1.0-dev'
 }

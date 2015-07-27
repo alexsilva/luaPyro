@@ -82,8 +82,19 @@ function PyroProxy:start()
 
     -- set socket timeout
     timeout(conn, self.params.timeout or 30)
+    local data = self.serializer:dumps({handshake = 'Hello from Lua3.2'})
 
-    local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.params.hmac_key)
+    -- msg_type, serializer_id, seq, data, flags, annotations, hmac_key
+    local message = Message:new(Message.MSG_CONNECT, self.serializer:getid(), {
+            hmac_key = self.params.hmac_key,
+            compressed = self.params.compressed or 1,
+            seq = self.params.seq,
+            data = data
+    })
+    self.connection:send(message:to_bytes())
+
+    -- handshake end
+    message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.params.hmac_key)
     config.LOG:info(format('start connection %s:%s', self.uri.loc, self.uri.port), message.data)
 
     if self.params.load_metadata then
