@@ -79,6 +79,10 @@ function PyroProxy:start()
         error('PyroProxy connection failed: ' .. smsg)
     end
     self.connection = conn
+
+    -- set socket timeout
+    timeout(conn, self.params.timeout or 30)
+
     local message = Message:recv(conn, {Message.MSG_CONNECTOK}, self.params.hmac_key)
     config.LOG:info(format('start connection %s:%s', self.uri.loc, self.uri.port), message.data)
 
