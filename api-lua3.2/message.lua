@@ -83,8 +83,7 @@ end
 ----
 function Message:get_compressed(data)
     self.flags = bor(self.flags, self.FLAGS_COMPRESSED)
-    data = zlib_compress(data, Z_BEST_COMPRESSION)
-    return data
+    return zlib_compress(data, Z_BEST_COMPRESSION)
 end
 
 function Message:from_header(headers_data)
