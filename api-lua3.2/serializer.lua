@@ -6,7 +6,7 @@
 -- To change this template use File | Settings | File Templates.
 --
 
---dofile(PYRO_PATH .. '/api-lua3.2/serializers/json.lua')
+dofile(PYRO_PATH .. '/api-lua3.2/serializers/json.lua')
 dofile(PYRO_PATH .. '/api-lua3.2/configuration.lua')
 
 local TYPES = {
@@ -20,7 +20,7 @@ local TYPES = {
             return data
         end,
         encoder = function(data)
-            data = json_encode(data)
+            data = table2JSON(data)
             return data
         end,
     },
