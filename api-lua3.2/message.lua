@@ -83,7 +83,12 @@ end
 ----
 function Message:get_compressed(data)
     self.flags = bor(self.flags, self.FLAGS_COMPRESSED)
-    return zlib_compress(data, Z_BEST_COMPRESSION)
+    local code, compressed = zlib_compress(data, zlib.Z_BEST_COMPRESSION)
+    if (code ~= 0) then -- zlib failed to compress data (fatal error)
+        config.LOG:critical('zlib_compress', compressed)
+        error("zlib_compress: " + compressed)
+    end
+    return compressed
 end
 
 function Message:from_header(headers_data)
@@ -176,7 +181,12 @@ function Message:recv(connection, required_msgTypes, hmac_key)
     end
     -- after hmac check!
     if band(message.flags or 0, Message.FLAGS_COMPRESSED) == Message.FLAGS_COMPRESSED then
-        message.data = zlib_decompress(message.data) -- uncompress
+        local code, data = zlib_decompress(message.data) -- uncompress
+        if (code ~= 0) then -- zlib failed to decompress data (fatal error)
+            config.LOG:critical('zlib_decompress', data)
+            error("zlib_decompress: " + data)
+        end
+        message.data = data
     end
     return message
 end
